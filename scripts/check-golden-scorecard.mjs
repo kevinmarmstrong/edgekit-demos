@@ -8,22 +8,17 @@ const scorecardPath = path.join(root, 'docs', 'golden-demo-scorecard.json');
 const catalog = JSON.parse(fs.readFileSync(catalogPath, 'utf8'));
 const scorecard = JSON.parse(fs.readFileSync(scorecardPath, 'utf8'));
 
-const validStatuses = new Set([
-  'needed',
-  'scaffolded',
-  'browser-qa-pass',
-  'golden-pass',
-  'blocked-by-core',
-  'blocked-by-env',
-  'rework-required',
-  'implemented'
-]);
+const validStatuses = new Set(scorecard.definition?.statuses ?? []);
 
 const catalogGoldenIds = new Set((catalog.goldenDemos ?? []).map((demo) => demo.id));
 const scorecardGolden = scorecard.goldenDemos ?? [];
 const scorecardGoldenIds = new Set(scorecardGolden.map((demo) => demo.id));
 
 const errors = [];
+
+if (!validStatuses.size) {
+  errors.push('scorecard definition.statuses must list valid row statuses');
+}
 
 for (const id of catalogGoldenIds) {
   if (!scorecardGoldenIds.has(id)) {
@@ -58,10 +53,25 @@ for (const demo of scorecardGolden) {
 }
 
 const catalogLabIds = new Set((catalog.labs ?? []).map((lab) => lab.id));
-const scorecardLabIds = new Set((scorecard.labs ?? []).map((lab) => lab.id));
+const scorecardLabs = scorecard.labs ?? [];
+const scorecardLabIds = new Set(scorecardLabs.map((lab) => lab.id));
 for (const id of catalogLabIds) {
   if (!scorecardLabIds.has(id)) {
     errors.push(`lab ${id} is missing from docs/golden-demo-scorecard.json`);
+  }
+}
+
+for (const lab of scorecardLabs) {
+  if (!catalogLabIds.has(lab.id)) {
+    errors.push(`scorecard has unknown lab ${lab.id}`);
+  }
+  if (!validStatuses.has(lab.status)) {
+    errors.push(`scorecard lab ${lab.id} has invalid status ${lab.status}`);
+  }
+  for (const field of ['latestEvidence', 'nextGate']) {
+    if (!lab[field] || typeof lab[field] !== 'string') {
+      errors.push(`scorecard lab ${lab.id} missing string field ${field}`);
+    }
   }
 }
 

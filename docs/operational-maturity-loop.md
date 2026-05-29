@@ -84,7 +84,7 @@ The shared repos may be used for read-only inspection, tests, and integration-st
 
 Each golden demo must carry a scorecard row with:
 
-- `status`: `needed`, `scaffolded`, `browser-qa-pass`, `golden-pass`, `blocked-by-core`, `blocked-by-env`, or `rework-required`;
+- `status`: `needed`, `scaffolded`, `browser-qa-pass`, `implemented`, `golden-pass`, `blocked-by-core`, `blocked-by-env`, or `rework-required`;
 - local/browser tool use;
 - cascade/runtime onboarding;
 - Basic fallback honesty;
