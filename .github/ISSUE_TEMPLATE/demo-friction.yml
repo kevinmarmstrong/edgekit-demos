@@ -1,0 +1,57 @@
+name: Demo friction
+description: Report adopter or runtime friction found while building an Edgekit demo.
+title: "[demo-friction] <demo id>: <outcome failure>"
+labels: ["demo-friction"]
+body:
+  - type: input
+    id: demo
+    attributes:
+      label: Demo
+      description: Demo id or repo.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: Edgekit package versions
+      description: Published package versions used.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected app-user outcome
+      description: Describe what the agent user should have accomplished.
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: classification
+    attributes:
+      label: Classification
+      options:
+        - app-specific integration
+        - docs/onboarding gap
+        - missing primitive
+        - weak default
+        - core bug
+        - eval/test gap
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Include commands, screenshots, transcript, tool calls, approvals, telemetry, or logs.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed core/docs/test action
+      description: Leave blank if app-specific.

@@ -1,0 +1,35 @@
+name: Golden demo proposal
+description: Propose a new golden demo or promote a lab.
+title: "[golden-demo] <demo id>"
+labels: ["golden-demo"]
+body:
+  - type: input
+    id: demo
+    attributes:
+      label: Demo id
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: App-user outcome
+      description: What existing-app workflow does the agent user complete?
+    validations:
+      required: true
+  - type: textarea
+    id: surfaces
+    attributes:
+      label: Required Edgekit surfaces
+      description: Tools, state, identity, cascade, approvals, telemetry, audit, Skills, Mission Profiles, etc.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance checks
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: Product risks this demo should expose

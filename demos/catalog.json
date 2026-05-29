@@ -1,0 +1,98 @@
+{
+  "schemaVersion": 1,
+  "edgekitPackageRange": "^0.3.2",
+  "goldenDemos": [
+    {
+      "id": "ecommerce-workflow",
+      "status": "live",
+      "repo": "kevinmarmstrong/edgekit-demo-ecommerce",
+      "localPath": "../edgekit-demo-ecommerce",
+      "liveUrl": "https://edgekit-demo-ecommerce.pages.dev/",
+      "outcome": "Agent user searches catalog, compares products, proposes add-to-cart, requests approval, mutates app-owned cart state, and emits observable workflow state.",
+      "requiredSurfaces": ["cascade", "read-tools", "mutation-tools", "approval", "state", "ui-actions", "telemetry"],
+      "acceptance": [
+        "Uses browser-local cascade when available.",
+        "Searches catalog before product claims.",
+        "Does not mutate cart before approval.",
+        "Executes approved add-to-cart through host-owned app state.",
+        "Shows coherent fallback states when no model is available."
+      ]
+    },
+    {
+      "id": "admin-workflow",
+      "status": "live",
+      "repo": "kevinmarmstrong/edgekit-demo-admin",
+      "localPath": "../edgekit-demo-admin",
+      "liveUrl": "https://edgekit-demo-admin.pages.dev/",
+      "outcome": "Agent user searches accounts, evaluates role/policy context, proposes risky admin changes, gates them through approval, and records audit/telemetry.",
+      "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry"],
+      "acceptance": [
+        "Respects role and permission state.",
+        "Searches account records before recommending changes.",
+        "Requires approval for plan changes and suspensions.",
+        "Records audit-worthy action details.",
+        "Keeps host app as source of truth."
+      ]
+    },
+    {
+      "id": "docs-knowledge",
+      "status": "live",
+      "repo": "kevinmarmstrong/edgekit-demo-docs",
+      "localPath": "../edgekit-demo-docs",
+      "liveUrl": "https://edgekit-demo-docs.pages.dev/",
+      "outcome": "Agent user retrieves product knowledge, cites sources, refuses unsupported claims, and uses cascade/fallback states honestly.",
+      "requiredSurfaces": ["cascade", "knowledge", "citations", "strict-grounding", "no-evidence-refusal"],
+      "acceptance": [
+        "Uses retrieval before factual answers.",
+        "Cites sources for supported claims.",
+        "Refuses unsupported claims.",
+        "Identifies the runtime/model/assistant relationship accurately.",
+        "Does not reduce Edgekit to docs search in adoption answers."
+      ]
+    },
+    {
+      "id": "public-site-agent-user",
+      "status": "needed",
+      "repo": null,
+      "localPath": null,
+      "liveUrl": null,
+      "outcome": "Agent user operates a small public site: answers grounded questions, explains its capability mode, uses browser-local cascade when available, and refuses unsupported identity/disambiguation claims.",
+      "requiredSurfaces": ["cascade", "runtime-onboarding", "knowledge", "identity", "strict-grounding", "fallback"],
+      "acceptance": [
+        "Known local-model browser does not stay in Basic mode.",
+        "User can understand and change capability/cascade mode.",
+        "Unsupported claims such as Ohio, robots, and rockets are refused.",
+        "Identity questions are answered from configured assistant/runtime identity.",
+        "No-model fallback is labeled as fallback, not the product experience."
+      ]
+    },
+    {
+      "id": "worker-handoff",
+      "status": "needed",
+      "repo": null,
+      "localPath": null,
+      "liveUrl": null,
+      "outcome": "Agent user starts local, detects a task beyond local/basic capability, and escalates to an app-owned Worker/server route with explicit user-facing mode and telemetry.",
+      "requiredSurfaces": ["cascade", "handoff", "server-route", "telemetry", "policy"],
+      "acceptance": [
+        "Local/browser mode handles bounded app tasks.",
+        "App-owned Worker handles tasks that need server capability.",
+        "User sees why escalation happened.",
+        "Handoff context is bounded and excludes secrets.",
+        "Telemetry records mode transition and outcome."
+      ]
+    }
+  ],
+  "labs": [
+    {
+      "id": "cascade-runtime-onboarding-lab",
+      "status": "needed",
+      "purpose": "Prototype first-visit and runtime mode-change UX for local model, WebLLM download, cloud fallback, and Basic fallback."
+    },
+    {
+      "id": "tool-surface-retrofit-lab",
+      "status": "needed",
+      "purpose": "Start from an existing non-agent app and add only the smallest helper/tool surface needed for an agent user to complete workflows."
+    }
+  ]
+}
