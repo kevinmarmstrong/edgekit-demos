@@ -9,7 +9,8 @@
       "golden-pass",
       "blocked-by-core",
       "blocked-by-env",
-      "rework-required"
+      "rework-required",
+      "implemented"
     ],
     "goldenPassRule": "A demo can only be golden-pass when browser QA exercises the governed local/browser or app-owned model path with real tool use, host-owned state/actions, and required telemetry/audit evidence. Basic/search-only fallback alone cannot pass."
   },
