@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cascade Runtime Onboarding Lab</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "@kevinmarmstrong/edgekit": "https://esm.sh/@kevinmarmstrong/edgekit@0.3.2",
+          "@kevinmarmstrong/edgekit-governance": "https://esm.sh/@kevinmarmstrong/edgekit-governance@0.3.2"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #071018;
+        color: #ecf7ff;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 20% 20%, rgba(56, 189, 248, 0.24), transparent 32rem),
+          radial-gradient(circle at 80% 10%, rgba(168, 85, 247, 0.2), transparent 28rem),
+          #071018;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0;
+      }
+
+      .lab-shell {
+        display: grid;
+        gap: 24px;
+      }
+
+      header,
+      .status-card,
+      .panel {
+        border: 1px solid rgba(148, 163, 184, 0.24);
+        border-radius: 24px;
+        background: rgba(15, 23, 42, 0.78);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        padding: 28px;
+      }
+
+      h1,
+      h2 {
+        margin: 0 0 12px;
+      }
+
+      h1 {
+        font-size: clamp(2.4rem, 8vw, 5.8rem);
+        letter-spacing: -0.08em;
+        line-height: 0.9;
+      }
+
+      p {
+        color: #bed7ea;
+        line-height: 1.6;
+      }
+
+      .eyebrow,
+      .fallback-label {
+        color: #7dd3fc;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        font-size: 0.78rem;
+      }
+
+      .fallback-label {
+        color: #fbbf24;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        background: #38bdf8;
+        color: #04111d;
+        cursor: pointer;
+        font-weight: 800;
+        padding: 12px 16px;
+      }
+
+      button:nth-child(4) {
+        background: #fbbf24;
+      }
+
+      ul {
+        display: grid;
+        gap: 12px;
+        list-style: none;
+        padding: 0;
+      }
+
+      li {
+        border: 1px solid rgba(148, 163, 184, 0.2);
+        border-radius: 18px;
+        padding: 16px;
+        background: rgba(2, 6, 23, 0.55);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div id="lab-root"></div>
+      <section class="panel" aria-label="Lab notes">
+        <h2>Lab notes</h2>
+        <p>
+          This browser surface intentionally consumes published npm packages through an import map. The repo-local Node check imports the same runtime module and verifies the mode transitions without patching Edgekit core.
+        </p>
+      </section>
+    </main>
+    <script type="module">
+      import { LAB_SCENARIOS, mountCascadeRuntimeOnboardingLab } from './src/runtime-onboarding.js'
+
+      await mountCascadeRuntimeOnboardingLab(document.getElementById('lab-root'), {
+        scenario: LAB_SCENARIOS.webLLMDownload,
+      })
+    </script>
+  </body>
+</html>
