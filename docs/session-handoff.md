@@ -24,14 +24,16 @@ workflows are the center. Q&A is one read-only workflow, not the product.
 
 ## Start Here
 
-1. Read `PRODUCT-LAWS.md`.
-2. Read `DEMO-TEAM.md`.
-3. Read `demos/catalog.json`.
-4. Run `npm test`.
-5. Pick one `status: "needed"` demo/lab.
-6. Build against published packages only.
-7. Log friction with `docs/friction-log-template.md`.
-8. Open core issues/PRs only for reusable product gaps.
+1. Read `AGENTS.md`.
+2. Read `PRODUCT-LAWS.md`.
+3. Read `DEMO-TEAM.md`.
+4. Read `docs/core-feedback-loop.md`.
+5. Read `demos/catalog.json`.
+6. Run `npm test`.
+7. Pick one `status: "needed"` demo/lab.
+8. Build against published packages only.
+9. Log friction with `docs/friction-log-template.md`.
+10. Open core issues/PRs only for reusable product gaps.
 
 ## Current High-Priority Labs
 

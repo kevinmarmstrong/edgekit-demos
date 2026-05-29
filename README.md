@@ -30,19 +30,21 @@ app without rewriting the app.
 
 ## Demo Team Loop
 
-1. Pick a golden demo or lab from `demos/catalog.json`.
-2. Install from published `@kevinmarmstrong/*` packages.
-3. Build the smallest app-owned tool/helper surface needed for the workflow.
-4. Run the acceptance rubric in `docs/golden-demo-acceptance.md`.
-5. Log every friction in `docs/friction-log-template.md` format.
-6. Classify each friction:
+1. Read `AGENTS.md`, `PRODUCT-LAWS.md`, `DEMO-TEAM.md`, and
+   `docs/core-feedback-loop.md`.
+2. Pick a golden demo or lab from `demos/catalog.json`.
+3. Install from published `@kevinmarmstrong/*` packages.
+4. Build the smallest app-owned tool/helper surface needed for the workflow.
+5. Run the acceptance rubric in `docs/golden-demo-acceptance.md`.
+6. Log every friction in `docs/friction-log-template.md` format.
+7. Classify each friction:
    - app-specific integration
    - docs/onboarding gap
    - missing primitive
    - weak default
    - core bug
    - eval/test gap
-7. Open a core issue or PR only for reusable Edgekit product gaps.
+8. Open a core issue or PR only for reusable Edgekit product gaps.
 
 ## Local Checks
 
