@@ -4,8 +4,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-golden-scorecard.mjs",
+    "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-golden-scorecard.mjs && node scripts/check-public-site-agent-user.mjs",
     "smoke:live": "node scripts/check-live-demos.mjs",
-    "demo:worker-handoff": "npm --prefix demos/worker-handoff test"
+    "demo:worker-handoff": "npm --prefix demos/worker-handoff test",
+    "demo:public-site-agent-user": "npm --prefix demos/public-site-agent-user test"
   }
 }

@@ -53,11 +53,11 @@
     {
       "id": "public-site-agent-user",
       "status": "needed",
-      "repo": null,
-      "localPath": null,
+      "repo": "kevinmarmstrong/edgekit-demos",
+      "localPath": "demos/public-site-agent-user",
       "liveUrl": null,
       "outcome": "Agent user operates a small public site: answers grounded questions, explains its capability mode, uses browser-local cascade when available, and refuses unsupported identity/disambiguation claims.",
-      "requiredSurfaces": ["cascade", "runtime-onboarding", "knowledge", "identity", "strict-grounding", "fallback"],
+      "requiredSurfaces": ["cascade", "runtime-onboarding", "knowledge", "identity", "strict-grounding", "fallback", "telemetry"],
       "acceptance": [
         "Known local-model browser does not stay in Basic mode.",
         "User can understand and change capability/cascade mode.",

@@ -1,0 +1,19 @@
+{
+  "id": "public-site-agent-user",
+  "status": "local-scaffold",
+  "outcome": "Agent user operates a small public site: answers grounded questions, explains its capability mode, uses browser-local cascade when available, and refuses unsupported identity/disambiguation claims.",
+  "entrypoint": "index.html",
+  "packageVersions": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-knowledge": "^0.3.2",
+    "@kevinmarmstrong/edgekit-skills": "^0.3.2",
+    "@kevinmarmstrong/edgekit-ui": "^0.3.2"
+  },
+  "acceptance": [
+    "Known local-model browser does not stay in Basic mode.",
+    "User can understand and change capability/cascade mode.",
+    "Unsupported claims such as Ohio, robots, and rockets are refused.",
+    "Identity questions are answered from configured assistant/runtime identity.",
+    "No-model fallback is labeled as fallback, not the product experience."
+  ]
+}

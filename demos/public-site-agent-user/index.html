@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Edgekit public-site agent user demo</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --accent: #5b5ff7;
+        --surface: color-mix(in srgb, Canvas 94%, var(--accent));
+      }
+
+      body {
+        margin: 0;
+        background: Canvas;
+        color: CanvasText;
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 48px 0 72px;
+      }
+
+      .hero,
+      .panel {
+        border: 1px solid color-mix(in srgb, CanvasText 16%, transparent);
+        border-radius: 24px;
+        background: var(--surface);
+        padding: 28px;
+        box-shadow: 0 24px 80px color-mix(in srgb, CanvasText 10%, transparent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+        gap: 28px;
+        align-items: start;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(2rem, 5vw, 4.5rem);
+        letter-spacing: -0.06em;
+        line-height: 0.95;
+      }
+
+      h2 {
+        margin-top: 0;
+      }
+
+      p,
+      li {
+        line-height: 1.6;
+      }
+
+      code {
+        border-radius: 8px;
+        padding: 0.15em 0.35em;
+        background: color-mix(in srgb, CanvasText 10%, transparent);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .mode-card {
+        border-left: 4px solid var(--accent);
+      }
+
+      edge-chat {
+        --edge-chat-accent: var(--accent);
+        --edge-chat-radius: 20px;
+        --edge-chat-font-family: inherit;
+      }
+
+      @media (max-width: 860px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero" id="purpose">
+        <div>
+          <p><strong>Golden demo:</strong> public-site-agent-user</p>
+          <h1>A public site with a governed agent user.</h1>
+          <p>
+            This small public site shows Edgekit as an app-level agent user, not a generic chat widget.
+            The host app owns the knowledge source, identity copy, capability-mode UI, telemetry, and refusal policy.
+          </p>
+          <div class="grid">
+            <article class="panel mode-card" id="capability-mode">
+              <h2>Capability mode</h2>
+              <p data-capability-mode>
+                Checking browser-local capability before enabling the agent user.
+              </p>
+              <edge-cascade-wizard></edge-cascade-wizard>
+            </article>
+            <article class="panel" id="assistant-identity">
+              <h2>Configured assistant identity</h2>
+              <p>
+                The assistant is <strong>Edgekit Public Site Guide</strong>, a read-only guide for this demo site.
+                It answers from configured runtime identity and site evidence, not unsupported model memory.
+              </p>
+            </article>
+          </div>
+        </div>
+        <aside class="panel">
+          <div id="assistant"></div>
+        </aside>
+      </section>
+
+      <section class="grid" aria-label="Acceptance proof points">
+        <article class="panel" id="grounding-policy">
+          <h2>Strict grounding</h2>
+          <p>
+            The agent must call <code>searchPublicSite</code> before factual answers, cite supporting site sections,
+            and refuse unsupported identity, location, biography, hardware, affiliation, or disambiguation claims.
+          </p>
+        </article>
+        <article class="panel">
+          <h2>Basic fallback is labeled</h2>
+          <p>
+            If no browser-local model is available, the no-model path returns a visibly labeled Basic fallback answer
+            using the same read-only site search tool. It is not presented as the full product experience.
+          </p>
+        </article>
+        <article class="panel">
+          <h2>Evidence summary</h2>
+          <p data-evidence-summary>Loading evidence summary.</p>
+        </article>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
