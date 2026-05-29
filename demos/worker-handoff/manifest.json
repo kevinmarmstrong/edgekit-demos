@@ -1,0 +1,35 @@
+{
+  "id": "worker-handoff",
+  "title": "Worker handoff golden demo",
+  "status": "local-scaffold",
+  "edgekitPackageVersions": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-agui": "^0.3.2",
+    "@kevinmarmstrong/edgekit-governance": "^0.3.2"
+  },
+  "requiredSurfaces": [
+    "cascade",
+    "handoff",
+    "server-route",
+    "telemetry",
+    "policy"
+  ],
+  "acceptanceEvidence": [
+    "local-mode-bounded-task",
+    "server-route-escalation",
+    "user-facing-mode",
+    "bounded-context-no-secrets",
+    "telemetry-mode-transition"
+  ],
+  "localChecks": [
+    "npm test",
+    "cd demos/worker-handoff && npm test"
+  ],
+  "serverRoute": "/api/edgekit/worker-handoff",
+  "friction": [
+    {
+      "classification": "app-specific integration",
+      "finding": "The demo keeps task classification, sample app state, and Worker tool behavior local to the scaffold because these are host-app domain choices."
+    }
+  ]
+}

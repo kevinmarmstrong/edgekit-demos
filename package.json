@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/check-catalog.mjs",
-    "smoke:live": "node scripts/check-live-demos.mjs"
+    "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs",
+    "smoke:live": "node scripts/check-live-demos.mjs",
+    "demo:worker-handoff": "npm --prefix demos/worker-handoff test"
   }
 }

@@ -69,8 +69,8 @@
     {
       "id": "worker-handoff",
       "status": "needed",
-      "repo": null,
-      "localPath": null,
+      "repo": "kevinmarmstrong/edgekit-demos",
+      "localPath": "demos/worker-handoff",
       "liveUrl": null,
       "outcome": "Agent user starts local, detects a task beyond local/basic capability, and escalates to an app-owned Worker/server route with explicit user-facing mode and telemetry.",
       "requiredSurfaces": ["cascade", "handoff", "server-route", "telemetry", "policy"],
