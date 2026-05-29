@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-05-29",
+  "definition": {
+    "statuses": [
+      "needed",
+      "scaffolded",
+      "browser-qa-pass",
+      "golden-pass",
+      "blocked-by-core",
+      "blocked-by-env",
+      "rework-required"
+    ],
+    "goldenPassRule": "A demo can only be golden-pass when browser QA exercises the governed local/browser or app-owned model path with real tool use, host-owned state/actions, and required telemetry/audit evidence. Basic/search-only fallback alone cannot pass."
+  },
+  "goldenDemos": [
+    {
+      "id": "ecommerce-workflow",
+      "status": "blocked-by-env",
+      "localBrowserToolUse": "not-verified: QA browser lacked window.ai.languageModel",
+      "cascadeRuntimeOnboarding": "partial: fallback labeled Basic mode but no visible later capability switch",
+      "basicFallbackHonesty": "pass",
+      "realWorkflowCompletion": "fail: approval/add-to-cart workflow not exercised in live QA",
+      "hostOwnedMutationPath": "not-verified: no approved mutation occurred",
+      "approvalAuditTelemetry": "not-verified: no approval/audit path surfaced in Basic mode",
+      "groundingRefusal": "not-tested",
+      "latestEvidence": "qa-artifacts/2026-05-29/report.md",
+      "linkedIssues": [],
+      "nextGate": "Provide real local-model browser QA or deterministic model-backed demo path that exercises approval-gated cart mutation."
+    },
+    {
+      "id": "admin-workflow",
+      "status": "blocked-by-env",
+      "localBrowserToolUse": "not-verified: QA browser lacked window.ai.languageModel",
+      "cascadeRuntimeOnboarding": "partial: fallback labeled Basic mode but no visible later capability switch",
+      "basicFallbackHonesty": "pass",
+      "realWorkflowCompletion": "fail: approval/change-plan workflow not exercised in live QA",
+      "hostOwnedMutationPath": "not-verified: no approved mutation occurred",
+      "approvalAuditTelemetry": "fail/not-exercised: audit remained empty in Basic mode",
+      "groundingRefusal": "not-tested",
+      "latestEvidence": "qa-artifacts/2026-05-29/report.md",
+      "linkedIssues": [],
+      "nextGate": "Provide real local-model browser QA or deterministic model-backed demo path that exercises approval-gated admin mutation and audit."
+    },
+    {
+      "id": "docs-knowledge",
+      "status": "rework-required",
+      "localBrowserToolUse": "not-verified: QA browser lacked window.ai.languageModel; Basic retrieval path tested",
+      "cascadeRuntimeOnboarding": "partial: Basic fallback labeled but no visible later capability switch",
+      "basicFallbackHonesty": "partial: fallback labeled, but unsupported claim laundering was observed on live URL",
+      "realWorkflowCompletion": "partial: supported docs Q&A worked; unsupported-claim refusal failed in live QA",
+      "hostOwnedMutationPath": "not-applicable",
+      "approvalAuditTelemetry": "not-applicable/read-only",
+      "groundingRefusal": "fail on live URL: Ohio/robots/rockets prompt returned unrelated snippets",
+      "latestEvidence": "qa-artifacts/2026-05-29/report.md",
+      "linkedIssues": [],
+      "nextGate": "Deploy/retest Basic fallback refusal fix; if generalized, route through claim-support primitive instead of keyword denylist."
+    },
+    {
+      "id": "public-site-agent-user",
+      "status": "scaffolded",
+      "localBrowserToolUse": "claimed by scaffold tests; needs full browser QA against clean integrated branch",
+      "cascadeRuntimeOnboarding": "claimed: capability mode and cascade wizard visible",
+      "basicFallbackHonesty": "claimed: no-model fallback labeled fallback",
+      "realWorkflowCompletion": "partial: grounded public-site Q&A only; no mutation workflow expected",
+      "hostOwnedMutationPath": "not-applicable/read-only",
+      "approvalAuditTelemetry": "telemetry claimed; needs browser evidence artifact",
+      "groundingRefusal": "claimed: unsupported Ohio/robots/rockets refused locally",
+      "latestEvidence": "kanban t_eb31c870 handoff; needs integration-steward verification",
+      "linkedIssues": ["kevinmarmstrong/edgekit-demos#1"],
+      "nextGate": "Integration steward isolates branch, verifies no demo-specific logic leaked to core, then browser QA updates status."
+    },
+    {
+      "id": "worker-handoff",
+      "status": "browser-qa-pass",
+      "localBrowserToolUse": "pass: browser-facing local step shown before app-owned handoff",
+      "cascadeRuntimeOnboarding": "pass: browser-first cascade visible before handoff",
+      "basicFallbackHonesty": "pass/not-primary: success path is local/browser to app-owned worker, not Basic fallback",
+      "realWorkflowCompletion": "pass in local/browser demo proof: bounded app task escalates to app-owned worker route",
+      "hostOwnedMutationPath": "pass: server action requires explicit app-owned authority",
+      "approvalAuditTelemetry": "pass: telemetry/audit show local step, handoff, worker result",
+      "groundingRefusal": "not-applicable",
+      "latestEvidence": "qa-artifacts/2026-05-29/local-browser-model-lane/report.md; deterministic local/browser model harness exercised worker-handoff in real Chrome; PR kevinmarmstrong/edgekit-demos#5 remains pending review/merge",
+      "linkedIssues": ["kevinmarmstrong/edgekit-demos#2", "kevinmarmstrong/edgekit-demos#5"],
+      "nextGate": "Review/merge PR #5 or isolate this QA-lane diff, then retest from a clean integrated branch before any golden-pass promotion."
+    }
+  ],
+  "labs": [
+    {
+      "id": "cascade-runtime-onboarding-lab",
+      "status": "browser-qa-pass",
+      "latestEvidence": "qa-artifacts/2026-05-29/cascade-runtime-onboarding-lab/report.md",
+      "nextGate": "Review reusable core cascade helper and retest demos against published package when available."
+    },
+    {
+      "id": "tool-surface-retrofit-lab",
+      "status": "implemented",
+      "latestEvidence": "kanban t_d82463ba and t_59053997 handoffs",
+      "nextGate": "Integrate demo branch; review core issues #2/#3 before claiming product primitive maturity."
+    }
+  ]
+}
