@@ -34,6 +34,12 @@ function summarizeVisibleDashboard(cascade) {
   }
 }
 
+function redactBrowserModelTask(task) {
+  return task
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[REDACTED:email]')
+    .replace(/secret_[a-z_]+/gi, '[REDACTED:secret]')
+}
+
 function createDeterministicLocalBrowserModel(cascade) {
   return {
     provider: 'deterministic-local-browser-model',
@@ -46,7 +52,7 @@ function createDeterministicLocalBrowserModel(cascade) {
         provider: this.provider,
         capability: this.capability,
         mode: needsServer ? 'app-owned-worker-required' : 'local-browser',
-        task,
+        task: redactBrowserModelTask(task),
         toolCalls: [
           {
             id: 'tool-call-local-dashboard-summary',

@@ -115,7 +115,7 @@ for (const phrase of ['data-testid="local-browser-step"', 'data-testid="handoff-
 }
 
 const browserScript = readText('demos/worker-handoff/public/browser-app.js')
-for (const phrase of ['summarizeVisibleDashboard', 'deterministic-local-browser-model', 'tool-calling-local-browser-harness', 'x-edgekit-app-authority', '/api/edgekit/worker-handoff']) {
+for (const phrase of ['summarizeVisibleDashboard', 'deterministic-local-browser-model', 'tool-calling-local-browser-harness', 'redactBrowserModelTask', '[REDACTED:email]', '[REDACTED:secret]', 'x-edgekit-app-authority', '/api/edgekit/worker-handoff']) {
   if (!browserScript.includes(phrase)) failures.push(`worker-handoff browser script missing proof phrase: ${phrase}`)
 }
 
