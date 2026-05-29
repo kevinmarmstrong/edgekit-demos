@@ -1,0 +1,17 @@
+{
+  "name": "edgekit-demo-worker-handoff",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser-first Edgekit worker handoff golden demo scaffold.",
+  "scripts": {
+    "test": "node src/worker-handoff-demo.test.mjs",
+    "demo": "node src/worker-handoff-demo.mjs",
+    "serve": "node src/worker-handoff-demo.mjs --serve"
+  },
+  "dependencies": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-agui": "^0.3.2",
+    "@kevinmarmstrong/edgekit-governance": "^0.3.2"
+  }
+}

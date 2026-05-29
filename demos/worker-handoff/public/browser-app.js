@@ -1,0 +1,150 @@
+const route = '/api/edgekit/worker-handoff'
+const cascadeRoute = `${route}/cascade`
+
+const state = {
+  cascade: null,
+  localStep: null,
+}
+
+const $ = (selector) => document.querySelector(selector)
+
+function pretty(value) {
+  return JSON.stringify(value, null, 2)
+}
+
+function summarizeVisibleDashboard(cascade) {
+  const visibleState = cascade.localTool.visibleState
+  const output = `Visible dashboard has ${visibleState.visibleAlerts.length} alerts: ${visibleState.visibleAlerts
+    .map((alert) => alert.title)
+    .join('; ')}.`
+  return {
+    mode: 'local-browser',
+    toolName: 'summarizeVisibleDashboard',
+    completed: true,
+    boundary: 'visible host-app state only',
+    userVisibleProof: 'Browser-local tool-use completed before Worker handoff.',
+    output,
+    visibleState,
+    telemetry: {
+      type: 'local_tool.outcome',
+      mode: 'local-browser',
+      toolName: 'summarizeVisibleDashboard',
+      alertCount: visibleState.visibleAlerts.length,
+    },
+  }
+}
+
+function redactBrowserModelTask(task) {
+  return task
+    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, '[REDACTED:email]')
+    .replace(/secret_[a-z_]+/gi, '[REDACTED:secret]')
+}
+
+function createDeterministicLocalBrowserModel(cascade) {
+  return {
+    provider: 'deterministic-local-browser-model',
+    capability: 'tool-calling-local-browser-harness',
+    availability: 'available',
+    async run(task) {
+      const localToolResult = summarizeVisibleDashboard(cascade)
+      const needsServer = /warehouse|export|quarterly|billing variance/i.test(task)
+      return {
+        provider: this.provider,
+        capability: this.capability,
+        mode: needsServer ? 'app-owned-worker-required' : 'local-browser',
+        task: redactBrowserModelTask(task),
+        toolCalls: [
+          {
+            id: 'tool-call-local-dashboard-summary',
+            name: 'summarizeVisibleDashboard',
+            mode: 'local-browser',
+            status: 'completed',
+            result: localToolResult.output,
+          },
+        ],
+        localStep: {
+          ...localToolResult,
+          modelProvider: this.provider,
+          modelCapability: this.capability,
+        },
+        nextAction: needsServer
+          ? 'request-app-owned-worker-route-after-local-proof'
+          : 'answer-from-local-browser-tool-result',
+      }
+    },
+  }
+}
+
+function renderCascade(cascade) {
+  $('#local-mode-copy').textContent = cascade.productLawNotice
+  $('#local-output').textContent = pretty({
+    cascadeSteps: cascade.cascadeSteps,
+    localTool: cascade.localTool,
+  })
+  $('#handoff-output').textContent = pretty({
+    route: cascade.serverAuthority.route,
+    requiredAuthority: `${cascade.serverAuthority.header}: ${cascade.serverAuthority.value}`,
+    localProofRequired: true,
+    excludes: cascade.cascadeSteps.find((step) => step.id === 'bounded-handoff-review').excludes,
+  })
+}
+
+async function loadCascade() {
+  const response = await fetch(cascadeRoute)
+  if (!response.ok) throw new Error(`cascade state failed: ${response.status}`)
+  state.cascade = await response.json()
+  renderCascade(state.cascade)
+}
+
+$('#run-local').addEventListener('click', async () => {
+  const model = createDeterministicLocalBrowserModel(state.cascade)
+  const modelRun = await model.run('Summarize alerts on the visible dashboard from the current page.')
+  state.localStep = modelRun.localStep
+  $('#local-output').textContent = pretty(modelRun)
+})
+
+$('#run-handoff').addEventListener('click', async () => {
+  const model = createDeterministicLocalBrowserModel(state.cascade)
+  const modelRun = await model.run(
+    'Export a quarterly billing variance report from the finance warehouse for alice@example.com with token secret_customer_token.',
+  )
+  state.localStep = modelRun.localStep
+  $('#local-output').textContent = pretty(modelRun)
+
+  $('#server-mode-copy').textContent = 'Local/browser model proof complete; requesting explicit app-owned Worker authority.'
+  const response = await fetch(route, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-edgekit-app-authority': 'worker-handoff-demo',
+    },
+    body: JSON.stringify({
+      input:
+        'Export a quarterly billing variance report from the finance warehouse for alice@example.com with token secret_customer_token.',
+      localStep: {
+        mode: state.localStep.mode,
+        toolName: state.localStep.toolName,
+        completed: state.localStep.completed,
+      },
+    }),
+  })
+  const body = await response.json()
+  if (!response.ok) {
+    $('#server-mode-copy').textContent = 'Server route refused execution.'
+    $('#server-output').textContent = pretty(body)
+    return
+  }
+
+  $('#handoff-output').textContent = pretty(body.handoffReview)
+  $('#server-mode-copy').textContent = body.userFacingMode
+  $('#server-output').textContent = pretty({
+    report: body.report,
+    policy: body.policy,
+    telemetry: body.telemetry,
+    auditEntries: body.auditEntries,
+  })
+})
+
+loadCascade().catch((error) => {
+  $('#local-mode-copy').textContent = `Failed to load browser cascade proof: ${error.message}`
+})
