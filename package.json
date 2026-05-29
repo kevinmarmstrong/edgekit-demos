@@ -6,6 +6,12 @@
   "scripts": {
     "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-golden-scorecard.mjs",
     "smoke:live": "node scripts/check-live-demos.mjs",
-    "demo:worker-handoff": "npm --prefix demos/worker-handoff test"
+    "demo:worker-handoff": "npm --prefix demos/worker-handoff test",
+    "qa:local-browser-model": "node scripts/run-local-browser-model-qa.mjs"
+  },
+  "dependencies": {
+    "@kevinmarmstrong/edgekit": "0.3.2",
+    "@kevinmarmstrong/edgekit-agui": "0.3.2",
+    "@kevinmarmstrong/edgekit-governance": "0.3.2"
   }
 }

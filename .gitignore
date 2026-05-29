@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.DS_Store
+
+# Generated QA/browser evidence is summarized in Kanban/GitHub handoffs.
+# Keep raw screenshots, logs, and local reports out of committed demo code.
+dogfood-output/
+qa-artifacts/
