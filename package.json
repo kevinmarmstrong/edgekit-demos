@@ -6,6 +6,7 @@
   "scripts": {
     "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-golden-scorecard.mjs",
     "smoke:live": "node scripts/check-live-demos.mjs",
-    "demo:worker-handoff": "npm --prefix demos/worker-handoff test"
+    "demo:worker-handoff": "npm --prefix demos/worker-handoff test",
+    "lab:tool-surface-retrofit": "npm --prefix labs/tool-surface-retrofit-lab run check"
   }
 }

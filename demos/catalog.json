@@ -91,8 +91,17 @@
     },
     {
       "id": "tool-surface-retrofit-lab",
-      "status": "needed",
-      "purpose": "Start from an existing non-agent app and add only the smallest helper/tool surface needed for an agent user to complete workflows."
+      "status": "implemented",
+      "localPath": "labs/tool-surface-retrofit-lab",
+      "purpose": "Prove an existing non-agent app can be retrofitted with the smallest host-owned helper/tool surface needed for a governed agent user to complete workflows.",
+      "checks": ["npm run lab:tool-surface-retrofit"],
+      "acceptance": [
+        "Agent reads host app state before workflow claims.",
+        "Risky same-day scheduling is blocked without approval.",
+        "Approved mutation executes only through host.actions.scheduleSameDayVisit.",
+        "Telemetry/audit captures tool calls, approval, mutation, and outcome.",
+        "Workarounds are classified as app-specific integration or reusable Edgekit friction."
+      ]
     }
   ]
 }
