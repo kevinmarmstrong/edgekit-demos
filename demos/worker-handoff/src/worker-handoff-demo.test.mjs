@@ -114,6 +114,8 @@ test('browser assets expose visible local-first cascade and app-owned route cont
   assert.match(index, /data-testid="handoff-envelope-review"/)
   assert.match(index, /data-testid="server-result"/)
   assert.match(browserScript, /summarizeVisibleDashboard/)
+  assert.match(browserScript, /deterministic-local-browser-model/)
+  assert.match(browserScript, /tool-calling-local-browser-harness/)
   assert.match(browserScript, /x-edgekit-app-authority/)
   assert.match(browserScript, new RegExp(APP_OWNED_WORKER_ROUTE))
 })

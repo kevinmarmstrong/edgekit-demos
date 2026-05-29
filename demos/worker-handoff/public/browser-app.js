@@ -34,6 +34,41 @@ function summarizeVisibleDashboard(cascade) {
   }
 }
 
+function createDeterministicLocalBrowserModel(cascade) {
+  return {
+    provider: 'deterministic-local-browser-model',
+    capability: 'tool-calling-local-browser-harness',
+    availability: 'available',
+    async run(task) {
+      const localToolResult = summarizeVisibleDashboard(cascade)
+      const needsServer = /warehouse|export|quarterly|billing variance/i.test(task)
+      return {
+        provider: this.provider,
+        capability: this.capability,
+        mode: needsServer ? 'app-owned-worker-required' : 'local-browser',
+        task,
+        toolCalls: [
+          {
+            id: 'tool-call-local-dashboard-summary',
+            name: 'summarizeVisibleDashboard',
+            mode: 'local-browser',
+            status: 'completed',
+            result: localToolResult.output,
+          },
+        ],
+        localStep: {
+          ...localToolResult,
+          modelProvider: this.provider,
+          modelCapability: this.capability,
+        },
+        nextAction: needsServer
+          ? 'request-app-owned-worker-route-after-local-proof'
+          : 'answer-from-local-browser-tool-result',
+      }
+    },
+  }
+}
+
 function renderCascade(cascade) {
   $('#local-mode-copy').textContent = cascade.productLawNotice
   $('#local-output').textContent = pretty({
@@ -55,18 +90,22 @@ async function loadCascade() {
   renderCascade(state.cascade)
 }
 
-$('#run-local').addEventListener('click', () => {
-  state.localStep = summarizeVisibleDashboard(state.cascade)
-  $('#local-output').textContent = pretty(state.localStep)
+$('#run-local').addEventListener('click', async () => {
+  const model = createDeterministicLocalBrowserModel(state.cascade)
+  const modelRun = await model.run('Summarize alerts on the visible dashboard from the current page.')
+  state.localStep = modelRun.localStep
+  $('#local-output').textContent = pretty(modelRun)
 })
 
 $('#run-handoff').addEventListener('click', async () => {
-  if (!state.localStep) {
-    state.localStep = summarizeVisibleDashboard(state.cascade)
-    $('#local-output').textContent = pretty(state.localStep)
-  }
+  const model = createDeterministicLocalBrowserModel(state.cascade)
+  const modelRun = await model.run(
+    'Export a quarterly billing variance report from the finance warehouse for alice@example.com with token secret_customer_token.',
+  )
+  state.localStep = modelRun.localStep
+  $('#local-output').textContent = pretty(modelRun)
 
-  $('#server-mode-copy').textContent = 'Local/browser proof complete; requesting explicit app-owned Worker authority.'
+  $('#server-mode-copy').textContent = 'Local/browser model proof complete; requesting explicit app-owned Worker authority.'
   const response = await fetch(route, {
     method: 'POST',
     headers: {
