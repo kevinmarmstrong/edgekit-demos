@@ -2,13 +2,30 @@ Audience: demo-team
 
 # Worker Handoff Golden Demo
 
-This local scaffold proves the `worker-handoff` golden demo path: an Edgekit agent user starts in browser-local capability, detects that a request is beyond local/basic capability, and escalates to an app-owned Worker route with bounded context, policy enforcement, telemetry, and audit.
+This browser-facing scaffold proves the `worker-handoff` golden demo path: an Edgekit agent user starts in visible browser-local capability, completes a bounded app task from host-app state, reviews a bounded handoff envelope, and escalates only when an app-owned Worker route is explicitly authorized. The Worker route receives bounded context, enforces policy, emits telemetry, and records audit evidence.
 
 It intentionally uses only published runtime packages:
 
 - `@kevinmarmstrong/edgekit@^0.3.2`
 - `@kevinmarmstrong/edgekit-agui@^0.3.2`
 - `@kevinmarmstrong/edgekit-governance@^0.3.2`
+
+## Browser-facing proof
+
+Run the browser proof locally:
+
+```bash
+PATH=/opt/homebrew/bin:$PATH npm run serve
+# open http://127.0.0.1:4173/
+```
+
+The page renders three reviewable surfaces:
+
+1. `data-testid="local-browser-step"` shows `summarizeVisibleDashboard` reading visible host-app state before any server request.
+2. `data-testid="handoff-envelope-review"` shows the bounded envelope and excluded secret keys before/after server execution.
+3. `data-testid="server-result"` shows the app-owned Worker route result, policy outcome, telemetry, and audit entries.
+
+The route refuses execution unless the browser sends explicit app-owned authority (`x-edgekit-app-authority: worker-handoff-demo`) and completed local-browser tool proof. This keeps Basic/search-only/chat-shell behavior from being counted as success.
 
 ## User-facing mode
 
@@ -50,6 +67,8 @@ The policy allows only the report tool and bounds input, output, and timeout. Th
 The run emits mode and outcome events:
 
 - `mode.detected`
+- `local_tool.outcome`
+- `local_tool.proof_received`
 - `handoff.context_bounded`
 - `mode.transition`
 - `tool.outcome`
@@ -65,6 +84,7 @@ Run from this directory after installing dependencies:
 PATH=/opt/homebrew/bin:$PATH npm install --include=dev
 PATH=/opt/homebrew/bin:$PATH npm test
 PATH=/opt/homebrew/bin:$PATH npm run demo
+PATH=/opt/homebrew/bin:$PATH npm run serve
 ```
 
 Repo-level static checks also validate that the catalog points at this scaffold and that the implementation uses the published Edgekit handoff, policy, redaction, and audit APIs:
@@ -75,11 +95,13 @@ PATH=/opt/homebrew/bin:$PATH node scripts/check-worker-handoff-demo.mjs
 
 Catalog acceptance mapping:
 
+- Browser-first cascade is visible before handoff: `browser cascade view model makes local-browser tool use visible before worker escalation` and `browser assets expose visible local-first cascade and app-owned route contract` tests.
 - Local/browser mode handles bounded app tasks: `handles bounded app tasks locally` test.
-- App-owned Worker handles server capability tasks: `escalates server-only tasks to app-owned Worker route` test.
+- App-owned Worker handles server capability tasks: `escalates server-only tasks to app-owned Worker route` and `app-owned Worker route returns sanitized envelope, telemetry, and audit after local browser proof` tests.
+- Server action requires explicit app-owned authority: `app-owned Worker route rejects handoff without explicit app authority and local proof` test.
 - User sees why escalation happened: `userFacingMode` assertions.
 - Handoff context is bounded and excludes secrets: `does not leak secrets into bounded handoff context` test.
-- Telemetry records mode transition and outcome: `records mode transition telemetry and policy outcome` test.
+- Telemetry records local step, mode transition, and outcome: `records mode transition telemetry and policy outcome` test.
 
 ## Friction log
 

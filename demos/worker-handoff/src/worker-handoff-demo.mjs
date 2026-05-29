@@ -1,3 +1,7 @@
+import fs from 'node:fs/promises'
+import http from 'node:http'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { createMissionProfile } from '@kevinmarmstrong/edgekit'
 import { createHandoffEnvelope } from '@kevinmarmstrong/edgekit-agui'
 import {
@@ -6,6 +10,13 @@ import {
   createPiiRedactor,
   createToolPolicyExecutor,
 } from '@kevinmarmstrong/edgekit-governance'
+
+const DEMO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const PUBLIC_ROOT = path.join(DEMO_ROOT, 'public')
+export const APP_OWNED_WORKER_ROUTE = '/api/edgekit/worker-handoff'
+const CASCADE_STATE_ROUTE = `${APP_OWNED_WORKER_ROUTE}/cascade`
+const APP_AUTHORITY_HEADER = 'x-edgekit-app-authority'
+const APP_AUTHORITY_VALUE = 'worker-handoff-demo'
 
 const SERVER_ONLY_SIGNALS = [
   'warehouse',
@@ -81,6 +92,77 @@ export function createSampleAppState() {
     apiKey: 'secret_api_key_should_not_cross_boundary',
     secretNotes: 'do not reveal renewal negotiation floor',
     rawCustomerEmail: 'finance-lead@example.com',
+  }
+}
+
+function publicAlerts(appState) {
+  return appState.visibleAlerts.map(({ id, severity, title }) => ({ id, severity, title }))
+}
+
+export function summarizeVisibleDashboard({ appState, telemetry = [] }) {
+  const alerts = publicAlerts(appState)
+  const output = `Visible dashboard has ${alerts.length} alerts: ${alerts.map((alert) => alert.title).join('; ')}.`
+  const result = {
+    mode: 'local-browser',
+    name: 'summarizeVisibleDashboard',
+    toolName: 'summarizeVisibleDashboard',
+    inputBoundary: 'visible host-app dashboard state only',
+    userVisibleProof: 'The local/browser step read visible host-app state before any Worker handoff.',
+    output,
+    visibleState: {
+      workspaceId: appState.workspaceId,
+      currentView: appState.currentView,
+      selectedQuarter: appState.selectedQuarter,
+      visibleAlerts: alerts,
+    },
+  }
+  telemetry.push({
+    type: 'local_tool.outcome',
+    mode: 'local-browser',
+    toolName: result.toolName,
+    alertCount: alerts.length,
+    boundary: result.inputBoundary,
+  })
+  return result
+}
+
+export function createBrowserCascadeViewModel({ appState = createSampleAppState() } = {}) {
+  const localTool = summarizeVisibleDashboard({ appState, telemetry: [] })
+  return {
+    title: 'Worker handoff golden demo',
+    productLawNotice: 'Basic/search-only fallback is not counted as success; the visible proof starts with local/browser tool-use and escalates only for app-owned server authority.',
+    cascadeSteps: [
+      {
+        id: 'local-browser-tool-use',
+        label: '1. Local/browser tool-use first',
+        status: 'ready',
+        mode: 'local-browser',
+        userVisibleProof: localTool.userVisibleProof,
+        toolName: localTool.toolName,
+      },
+      {
+        id: 'bounded-handoff-review',
+        label: '2. Review bounded handoff envelope',
+        status: 'required-before-server-route',
+        excludes: ['authToken', 'apiKey', 'secretNotes', 'rawCustomerEmail', 'prompt-provided PII/secrets'],
+      },
+      {
+        id: 'app-owned-worker-route',
+        label: '3. App-owned Worker/server route',
+        status: 'requires-explicit-app-authority',
+        mode: 'app-owned-worker',
+        route: APP_OWNED_WORKER_ROUTE,
+      },
+    ],
+    localTool,
+    serverAuthority: {
+      required: true,
+      route: APP_OWNED_WORKER_ROUTE,
+      header: APP_AUTHORITY_HEADER,
+      value: APP_AUTHORITY_VALUE,
+      copy: 'Server capability is app-owned: the browser must send explicit authority and local-browser proof before the route will execute the Worker tool.',
+    },
+    cascadeStateRoute: CASCADE_STATE_ROUTE,
   }
 }
 
@@ -212,13 +294,13 @@ export async function handleLocalTask({ input, appState, telemetry }) {
     mode: 'local-browser',
     reason: 'bounded visible host-app state',
   })
+  const localTool = summarizeVisibleDashboard({ appState, telemetry })
 
   return {
     mode: 'local-browser',
     userFacingMode: 'Local/browser mode: bounded to visible app state; no Worker handoff required.',
-    answer: `Visible dashboard has ${appState.visibleAlerts.length} alerts: ${appState.visibleAlerts
-      .map((alert) => alert.title)
-      .join('; ')}.`,
+    answer: localTool.output,
+    localTool,
     handoff: null,
   }
 }
@@ -299,7 +381,7 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
   telemetry.push({
     type: 'server_route.completed',
     mode: 'app-owned-worker',
-    route: '/api/edgekit/worker-handoff',
+    route: APP_OWNED_WORKER_ROUTE,
     outcome: 'report-generated',
     reportId: report.reportId,
   })
@@ -309,7 +391,7 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
     userFacingMode:
       'Escalated from Local/browser mode to app-owned Worker mode because the request needs server-only finance warehouse access, policy enforcement, telemetry, and audit.',
     handoff: {
-      route: '/api/edgekit/worker-handoff',
+      route: APP_OWNED_WORKER_ROUTE,
       reason: classification.reason,
       envelope,
     },
@@ -321,6 +403,121 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
     telemetry,
     auditEntries: auditTrail.entries(),
   }
+}
+
+function sendJson(response, statusCode, payload) {
+  response.writeHead(statusCode, { 'content-type': 'application/json; charset=utf-8' })
+  response.end(JSON.stringify(payload, null, 2))
+}
+
+function sendText(response, statusCode, body, contentType) {
+  response.writeHead(statusCode, { 'content-type': contentType })
+  response.end(body)
+}
+
+async function parseJsonRequest(request) {
+  let raw = ''
+  for await (const chunk of request) raw += chunk
+  if (!raw.trim()) return {}
+  return JSON.parse(raw)
+}
+
+function hasExplicitAppAuthority(request, body) {
+  return (
+    request.headers[APP_AUTHORITY_HEADER] === APP_AUTHORITY_VALUE &&
+    body?.localStep?.mode === 'local-browser' &&
+    body?.localStep?.toolName === 'summarizeVisibleDashboard' &&
+    body?.localStep?.completed === true
+  )
+}
+
+function handoffReviewFromResult(result) {
+  const envelope = result.handoff.envelope
+  const boundedContextEvent = result.telemetry.find((event) => event.type === 'handoff.context_bounded')
+  return {
+    envelopeId: envelope.id,
+    version: envelope.version,
+    input: envelope.input,
+    messages: envelope.messages,
+    session: envelope.session,
+    tools: envelope.tools,
+    approximateTokens: envelope.approximateTokens,
+    redactionApplied: envelope.redaction?.applied === true,
+    excludedSecretKeys: boundedContextEvent?.excludedSecretKeys ?? [],
+    hasSecretLeak: hasSecretLeak(envelope),
+  }
+}
+
+async function servePublicAsset(requestPath, response) {
+  const assetPath = requestPath === '/' ? 'index.html' : requestPath.replace(/^\//, '')
+  if (!['index.html', 'browser-app.js'].includes(assetPath)) {
+    sendJson(response, 404, { error: 'not-found' })
+    return
+  }
+  const body = await fs.readFile(path.join(PUBLIC_ROOT, assetPath), 'utf8')
+  sendText(response, 200, body, assetPath.endsWith('.js') ? 'text/javascript; charset=utf-8' : 'text/html; charset=utf-8')
+}
+
+export function createWorkerHandoffServer({ appState = createSampleAppState() } = {}) {
+  return http.createServer(async (request, response) => {
+    try {
+      const url = new URL(request.url ?? '/', 'http://127.0.0.1')
+      if (request.method === 'GET' && url.pathname === CASCADE_STATE_ROUTE) {
+        sendJson(response, 200, createBrowserCascadeViewModel({ appState }))
+        return
+      }
+      if (request.method === 'POST' && url.pathname === APP_OWNED_WORKER_ROUTE) {
+        const body = await parseJsonRequest(request)
+        if (!hasExplicitAppAuthority(request, body)) {
+          sendJson(response, 403, {
+            error: 'app-owned-authority-required',
+            required:
+              'The app-owned Worker route requires x-edgekit-app-authority plus completed local-browser tool proof before server execution.',
+          })
+          return
+        }
+        if (typeof body.input !== 'string' || body.input.trim().length === 0) {
+          sendJson(response, 400, { error: 'input-required' })
+          return
+        }
+        const result = await handleWorkerHandoff({ input: body.input, appState })
+        if (result.mode !== 'app-owned-worker') {
+          sendJson(response, 409, {
+            error: 'server-capability-not-required',
+            requiredMode: result.mode,
+            userFacingMode: result.userFacingMode,
+          })
+          return
+        }
+        sendJson(response, 200, {
+          route: APP_OWNED_WORKER_ROUTE,
+          mode: result.mode,
+          userFacingMode: result.userFacingMode,
+          handoffReview: handoffReviewFromResult(result),
+          policy: result.policy,
+          report: result.report,
+          telemetry: [
+            {
+              type: 'local_tool.proof_received',
+              mode: 'local-browser',
+              toolName: body.localStep.toolName,
+              completed: true,
+            },
+            ...result.telemetry,
+          ],
+          auditEntries: result.auditEntries,
+        })
+        return
+      }
+      if (request.method === 'GET' && ['/', '/browser-app.js'].includes(url.pathname)) {
+        await servePublicAsset(url.pathname, response)
+        return
+      }
+      sendJson(response, 404, { error: 'not-found' })
+    } catch (error) {
+      sendJson(response, 500, { error: 'worker-handoff-server-error', message: error.message })
+    }
+  })
 }
 
 export async function runDemo() {
@@ -344,6 +541,14 @@ export async function runDemo() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  const result = await runDemo()
-  console.log(JSON.stringify(result, null, 2))
+  if (process.argv.includes('--serve')) {
+    const port = Number(process.env.PORT ?? 4173)
+    const server = createWorkerHandoffServer()
+    server.listen(port, '127.0.0.1', () => {
+      console.log(`worker-handoff browser demo listening on http://127.0.0.1:${port}/`)
+    })
+  } else {
+    const result = await runDemo()
+    console.log(JSON.stringify(result, null, 2))
+  }
 }

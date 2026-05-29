@@ -1,10 +1,18 @@
 import assert from 'node:assert/strict'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
+  APP_OWNED_WORKER_ROUTE,
+  createBrowserCascadeViewModel,
   createSampleAppState,
+  createWorkerHandoffServer,
   handleWorkerHandoff,
   hasSecretLeak,
   runDemo,
 } from './worker-handoff-demo.mjs'
+
+const demoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
 const tests = []
 function test(name, fn) {
@@ -85,6 +93,86 @@ test('records mode transition telemetry and policy outcome', async () => {
   assert.ok(eventTypes.includes('tool.outcome'))
   assert.ok(eventTypes.includes('server_route.completed'))
   assert.equal(result.auditEntries.length, 2)
+})
+
+test('browser cascade view model makes local-browser tool use visible before worker escalation', () => {
+  const viewModel = createBrowserCascadeViewModel({ appState: createSampleAppState() })
+  const stepIds = viewModel.cascadeSteps.map((step) => step.id)
+
+  assert.equal(viewModel.serverAuthority.route, APP_OWNED_WORKER_ROUTE)
+  assert.equal(stepIds.indexOf('local-browser-tool-use') < stepIds.indexOf('app-owned-worker-route'), true)
+  assert.equal(viewModel.localTool.name, 'summarizeVisibleDashboard')
+  assert.match(viewModel.localTool.userVisibleProof, /visible host-app state/i)
+  assert.match(viewModel.productLawNotice, /Basic\/search-only fallback is not counted as success/)
+})
+
+test('browser assets expose visible local-first cascade and app-owned route contract', () => {
+  const index = fs.readFileSync(path.join(demoRoot, 'public/index.html'), 'utf8')
+  const browserScript = fs.readFileSync(path.join(demoRoot, 'public/browser-app.js'), 'utf8')
+
+  assert.match(index, /data-testid="local-browser-step"/)
+  assert.match(index, /data-testid="handoff-envelope-review"/)
+  assert.match(index, /data-testid="server-result"/)
+  assert.match(browserScript, /summarizeVisibleDashboard/)
+  assert.match(browserScript, /x-edgekit-app-authority/)
+  assert.match(browserScript, new RegExp(APP_OWNED_WORKER_ROUTE))
+})
+
+async function withWorkerHandoffServer(fn) {
+  const server = createWorkerHandoffServer()
+  await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+  const { port } = server.address()
+  try {
+    return await fn(`http://127.0.0.1:${port}`)
+  } finally {
+    await new Promise((resolve, reject) => server.close((error) => (error ? reject(error) : resolve())))
+  }
+}
+
+test('app-owned Worker route rejects handoff without explicit app authority and local proof', async () => {
+  await withWorkerHandoffServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}${APP_OWNED_WORKER_ROUTE}`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ input: 'Export a quarterly billing variance report from the finance warehouse.' }),
+    })
+    const body = await response.json()
+
+    assert.equal(response.status, 403)
+    assert.equal(body.error, 'app-owned-authority-required')
+    assert.match(body.required, /local-browser tool proof/)
+  })
+})
+
+test('app-owned Worker route returns sanitized envelope, telemetry, and audit after local browser proof', async () => {
+  await withWorkerHandoffServer(async (baseUrl) => {
+    const response = await fetch(`${baseUrl}${APP_OWNED_WORKER_ROUTE}`, {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-edgekit-app-authority': 'worker-handoff-demo',
+      },
+      body: JSON.stringify({
+        input:
+          'Export a quarterly billing variance report from the finance warehouse for alice@example.com with token secret_customer_token.',
+        localStep: {
+          mode: 'local-browser',
+          toolName: 'summarizeVisibleDashboard',
+          completed: true,
+        },
+      }),
+    })
+    const body = await response.json()
+
+    assert.equal(response.status, 200)
+    assert.equal(body.route, APP_OWNED_WORKER_ROUTE)
+    assert.equal(body.handoffReview.redactionApplied, true)
+    assert.deepEqual(body.handoffReview.excludedSecretKeys, ['authToken', 'apiKey', 'secretNotes', 'rawCustomerEmail'])
+    assert.equal(JSON.stringify(body).includes('alice@example.com'), false)
+    assert.equal(JSON.stringify(body).includes('secret_customer_token'), false)
+    assert.ok(body.telemetry.map((event) => event.type).includes('mode.transition'))
+    assert.equal(body.auditEntries.length, 2)
+  })
 })
 
 test('runDemo returns mission profile and both local plus worker paths', async () => {

@@ -37,8 +37,10 @@ if (manifest) {
     if (!manifest.requiredSurfaces?.includes(surface)) failures.push(`worker-handoff manifest missing required surface: ${surface}`)
   }
   for (const check of [
+    'browser-visible-cascade',
     'local-mode-bounded-task',
     'server-route-escalation',
+    'server-route-explicit-authority',
     'user-facing-mode',
     'bounded-context-no-secrets',
     'telemetry-mode-transition',
@@ -54,6 +56,9 @@ if (demoPackage) {
   for (const required of ['@kevinmarmstrong/edgekit', '@kevinmarmstrong/edgekit-agui', '@kevinmarmstrong/edgekit-governance']) {
     if (dependencies[required] !== '^0.3.2') failures.push(`worker-handoff package must depend on ${required}@^0.3.2`)
   }
+  if (demoPackage.scripts?.serve !== 'node src/worker-handoff-demo.mjs --serve') {
+    failures.push('worker-handoff package must expose npm run serve for the browser proof')
+  }
   const nonKevinDependencies = dependencyNames.filter((name) => !name.startsWith('@kevinmarmstrong/'))
   if (nonKevinDependencies.length) failures.push(`worker-handoff demo must only use published @kevinmarmstrong/* runtime packages, found: ${nonKevinDependencies.join(', ')}`)
 }
@@ -68,6 +73,10 @@ for (const phrase of [
   'boundedHandoffContext',
   'excludedSecretKeys',
   'mode.transition',
+  'createBrowserCascadeViewModel',
+  'createWorkerHandoffServer',
+  'local_tool.proof_received',
+  'x-edgekit-app-authority',
 ]) {
   if (!source.includes(phrase)) failures.push(`worker-handoff source missing required proof phrase: ${phrase}`)
 }
@@ -80,12 +89,17 @@ for (const behavior of [
   'redacts arbitrary prompt PII before creating the handoff envelope',
   'caps prompt text before creating the handoff envelope',
   'records mode transition telemetry and policy outcome',
+  'browser cascade view model makes local-browser tool use visible before worker escalation',
+  'browser assets expose visible local-first cascade and app-owned route contract',
+  'app-owned Worker route rejects handoff without explicit app authority and local proof',
+  'app-owned Worker route returns sanitized envelope, telemetry, and audit after local browser proof',
 ]) {
   if (!testSource.includes(behavior)) failures.push(`worker-handoff local test missing behavior: ${behavior}`)
 }
 
 const readme = readText('demos/worker-handoff/README.md')
 for (const phrase of [
+  'Browser-facing proof',
   'User-facing mode',
   'Bounded handoff context',
   'App-owned Worker route',
@@ -95,10 +109,20 @@ for (const phrase of [
   if (!readme.includes(phrase)) failures.push(`worker-handoff README missing section or phrase: ${phrase}`)
 }
 
+const indexHtml = readText('demos/worker-handoff/public/index.html')
+for (const phrase of ['data-testid="local-browser-step"', 'data-testid="handoff-envelope-review"', 'data-testid="server-result"']) {
+  if (!indexHtml.includes(phrase)) failures.push(`worker-handoff browser index missing visible proof surface: ${phrase}`)
+}
+
+const browserScript = readText('demos/worker-handoff/public/browser-app.js')
+for (const phrase of ['summarizeVisibleDashboard', 'x-edgekit-app-authority', '/api/edgekit/worker-handoff']) {
+  if (!browserScript.includes(phrase)) failures.push(`worker-handoff browser script missing proof phrase: ${phrase}`)
+}
+
 if (failures.length) {
   console.error('worker-handoff demo checks failed:')
   for (const failure of failures) console.error(`- ${failure}`)
   process.exit(1)
 }
 
-console.log('worker-handoff demo checks passed (local scaffold, policy, telemetry, bounded handoff)')
+console.log('worker-handoff demo checks passed (browser-facing cascade, app-owned route, policy, telemetry, bounded handoff)')
