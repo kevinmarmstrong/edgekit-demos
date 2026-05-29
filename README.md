@@ -4,10 +4,11 @@ Audience: demo-team
 
 This repo is the demo and lab operating system for Edgekit.
 
-Edgekit exists to make an existing app agent-operable. The agent is a governed
-app user: it can do what a user can do, and more, through developer-exposed
-tools, state, helpers, Skills, Mission Profiles, cascade, approvals, telemetry,
-and audit. Demos prove that outcome against published packages.
+Edgekit exists to make an existing app tool-operable by a local-first agent.
+The agent is a governed app user: it can do what a user can do, and more,
+through developer-exposed tools, state, helpers, Skills, Mission Profiles,
+cascade, approvals, telemetry, and audit. Demos prove that outcome against
+published packages.
 
 This repo does not replace the Edgekit core repo and does not absorb demo app
 source by default. It coordinates external demos, labs, friction reports, and
@@ -22,16 +23,22 @@ core handoff.
 
 ## Product Center
 
-Do not reduce Edgekit to chat, Q&A, RAG, a local-model demo, or a bundle-size
-exercise. Those are parts of the system, not the product.
+Do not reduce Edgekit to chat, Q&A, RAG, a local-model demo, a lite bundle, or a
+bundle-size exercise. Those are parts of the system, not the product.
 
-The release proof is: a developer can add a governed agent user to an existing
-app without rewriting the app.
+The release proof is: a developer can add a governed local-first tool-using
+agent to an existing app without rewriting the app.
+
+Every golden demo must prove meaningful tool use. Q&A only counts when it is a
+read-only tool workflow with strict evidence behavior. Basic/search-only mode is
+fallback, not the success state.
 
 ## Demo Team Loop
 
-1. Read `AGENTS.md`, `PRODUCT-LAWS.md`, `DEMO-TEAM.md`, and
-   `docs/core-feedback-loop.md`.
+1. Read `AGENTS.md`, `PRODUCT-LAWS.md`, `DEMO-TEAM.md`,
+   `docs/core-feedback-loop.md`, `docs/autonomous-demo-team.md`,
+   `docs/operational-maturity-loop.md`, `docs/github-turn-flags.md`,
+   and `docs/golden-demo-scorecard.json`.
 2. Pick a golden demo or lab from `demos/catalog.json`.
 3. Install from published `@kevinmarmstrong/*` packages.
 4. Build the smallest app-owned tool/helper surface needed for the workflow.
