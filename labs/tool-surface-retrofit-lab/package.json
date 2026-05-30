@@ -1,0 +1,15 @@
+{
+  "name": "tool-surface-retrofit-lab",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lab: retrofit a realistic non-agent app with the smallest governed tool surface for Edgekit agent-user workflows.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "check": "npm test && node scripts/run-lab-check.mjs"
+  },
+  "dependencies": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-governance": "^0.3.2"
+  }
+}

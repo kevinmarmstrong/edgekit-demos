@@ -20,18 +20,19 @@
     },
     {
       "id": "admin-workflow",
-      "status": "live",
-      "repo": "kevinmarmstrong/edgekit-demo-admin",
-      "localPath": "../edgekit-demo-admin",
-      "liveUrl": "https://edgekit-demo-admin.pages.dev/",
-      "outcome": "Agent user searches accounts, evaluates role/policy context, proposes risky admin changes, gates them through approval, and records audit/telemetry.",
-      "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry"],
+      "status": "needed",
+      "repo": "kevinmarmstrong/edgekit-demos",
+      "localPath": "demos/admin-workflow",
+      "liveUrl": null,
+      "outcome": "Agent user searches accounts, evaluates role/policy context, proposes risky admin changes, gates them through approval, executes only through app-owned mutation tools, and records audit/telemetry.",
+      "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry", "cascade"],
       "acceptance": [
-        "Respects role and permission state.",
+        "Uses browser-local cascade when available.",
+        "Respects role and permission state before proposing risky changes.",
         "Searches account records before recommending changes.",
-        "Requires approval for plan changes and suspensions.",
-        "Records audit-worthy action details.",
-        "Keeps host app as source of truth."
+        "Requires approval for plan changes, suspensions, and role grants.",
+        "Executes approved changes only through host-owned app mutation state.",
+        "Records audit-worthy action details and telemetry."
       ]
     },
     {
@@ -40,13 +41,12 @@
       "repo": "kevinmarmstrong/edgekit-demo-docs",
       "localPath": "../edgekit-demo-docs",
       "liveUrl": "https://edgekit-demo-docs.pages.dev/",
-      "outcome": "Agent user retrieves product knowledge, cites sources, refuses unsupported claims, only proposes transactional actions when grounded in policy/docs, and uses cascade/fallback states honestly.",
+      "outcome": "Agent user retrieves product knowledge, cites sources, refuses unsupported claims, and uses cascade/fallback states honestly.",
       "requiredSurfaces": ["cascade", "knowledge", "citations", "strict-grounding", "no-evidence-refusal"],
       "acceptance": [
         "Uses retrieval before factual answers.",
         "Cites sources for supported claims.",
         "Refuses unsupported claims.",
-        "Only proposes transactional actions when the retrieved docs support the action.",
         "Identifies the runtime/model/assistant relationship accurately.",
         "Does not reduce Edgekit to docs search in adoption answers."
       ]
@@ -54,53 +54,41 @@
     {
       "id": "public-site-agent-user",
       "status": "needed",
-      "repo": "kevinmarmstrong/edgekit-demos",
-      "localPath": "demos/public-site-agent-user",
+      "repo": null,
+      "localPath": null,
       "liveUrl": null,
-      "outcome": "Agent user operates a small public site: answers grounded questions, explains its capability mode, uses browser-local cascade when available, refuses unsupported identity/disambiguation claims, and only proposes transactional actions when grounded in site policy.",
-      "requiredSurfaces": ["cascade", "runtime-onboarding", "knowledge", "identity", "strict-grounding", "fallback", "telemetry"],
+      "outcome": "Agent user operates a small public site: answers grounded questions, explains its capability mode, uses browser-local cascade when available, and refuses unsupported identity/disambiguation claims.",
+      "requiredSurfaces": ["cascade", "runtime-onboarding", "knowledge", "identity", "strict-grounding", "fallback"],
       "acceptance": [
         "Known local-model browser does not stay in Basic mode.",
         "User can understand and change capability/cascade mode.",
         "Unsupported claims such as Ohio, robots, and rockets are refused.",
         "Identity questions are answered from configured assistant/runtime identity.",
-        "No-model fallback is labeled as fallback, not the product experience.",
-        "Only proposes transactional actions when the retrieved site evidence supports the action."
+        "No-model fallback is labeled as fallback, not the product experience."
       ]
     },
     {
       "id": "worker-handoff",
-      "status": "implemented",
+      "status": "needed",
       "repo": "kevinmarmstrong/edgekit-demos",
       "localPath": "demos/worker-handoff",
       "liveUrl": null,
-      "outcome": "Agent user starts local (data gathering, validation, proposal), detects need for server capability or higher assurance, makes explicit user-facing mode disclosure + handoff request, and Worker completes the transactional outcome (mutation, external system call, final state) with full telemetry and audit across the handoff boundary.",
-      "requiredSurfaces": ["cascade", "handoff", "server-route", "telemetry", "policy", "mutation", "audit"],
+      "outcome": "Agent user starts local, detects a task beyond local/basic capability, and escalates to an app-owned Worker/server route with explicit user-facing mode and telemetry.",
+      "requiredSurfaces": ["cascade", "handoff", "server-route", "telemetry", "policy"],
       "acceptance": [
-        "Local/browser mode handles bounded app tasks (data gathering, validation, proposal).",
-        "App-owned Worker handles tasks that need server capability and completes transactional mutations.",
-        "User sees why escalation happened (explicit mode disclosure).",
+        "Local/browser mode handles bounded app tasks.",
+        "App-owned Worker handles tasks that need server capability.",
+        "User sees why escalation happened.",
         "Handoff context is bounded and excludes secrets.",
-        "Telemetry records mode transition, proposal, and outcome across boundary.",
-        "EDGEKIT-LOOP metadata and boundary guard enforced.",
-        "No core boundary leakage; all transactional logic is demo-specific."
+        "Telemetry records mode transition and outcome."
       ]
     }
   ],
   "labs": [
     {
       "id": "cascade-runtime-onboarding-lab",
-      "status": "scaffolded",
-      "localPath": "labs/cascade-runtime-onboarding-lab",
-      "purpose": "Prototype first-visit and runtime mode-change UX for local model, WebLLM download, cloud fallback, and Basic fallback.",
-      "checks": ["npm run lab:cascade-onboarding"],
-      "acceptance": [
-        "Detects browser/local model availability before exposing agent-operable features.",
-        "Prompts for an explicit WebLLM download and records download/provider status.",
-        "Offers an app-owned cloud/server route when configured.",
-        "Labels Basic fallback as setup guidance only, not the product experience.",
-        "Records telemetry and audit evidence for first-visit, retry, and mode-change transitions."
-      ]
+      "status": "needed",
+      "purpose": "Prototype first-visit and runtime mode-change UX for local model, WebLLM download, cloud fallback, and Basic fallback."
     },
     {
       "id": "tool-surface-retrofit-lab",
@@ -114,20 +102,6 @@
         "Approved mutation executes only through host.actions.scheduleSameDayVisit.",
         "Telemetry/audit captures tool calls, approval, mutation, and outcome.",
         "Workarounds are classified as app-specific integration or reusable Edgekit friction."
-      ]
-    },
-    {
-      "id": "partial-assistance-pattern-lab",
-      "status": "scaffolded",
-      "localPath": "labs/partial-assistance-lab",
-      "purpose": "Focused lab demonstrating the partial assistance / co-pilot pattern: agent excels at data gathering, analysis, and proposal; user retains final execution/approval. Clear handoff point with boundary guard. Local model path success.",
-      "checks": ["npm run lab:partial-assistance"],
-      "acceptance": [
-        "Local model path success with agent performing analysis + proposal.",
-        "Clear visual and state separation between agent proposal and user execution.",
-        "Browser QA captures explicit handoff point evidence.",
-        "EDGEKIT-LOOP metadata and boundary guard enforced.",
-        "Agent proposal never auto-executes; execution is user-triggered host action only."
       ]
     }
   ]

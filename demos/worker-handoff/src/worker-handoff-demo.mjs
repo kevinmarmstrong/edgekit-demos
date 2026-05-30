@@ -34,14 +34,6 @@ const LOCAL_TASK_SIGNALS = [
   'filter local',
 ]
 
-const TRANSACTIONAL_SIGNALS = [
-  'adjustment',
-  'transactional',
-  'propose adjustment',
-  'complete mutation',
-  'billing adjustment',
-]
-
 const SECRET_KEYS = new Set(['authToken', 'apiKey', 'secretNotes', 'rawCustomerEmail'])
 const MAX_HANDOFF_INPUT_CHARS = 260
 
@@ -56,8 +48,8 @@ export function createWorkerHandoffMissionProfile() {
     mission: 'worker-handoff',
     version: '1.0.0',
     systemPrompt:
-      'Start in local-browser mode for bounded app tasks. Escalate only when server authority is required. Explain mode transitions, bound handoff context, enforce policy, and record telemetry. For transactional tasks, perform local data gathering, validation and proposal first, then handoff for Worker mutation completion.',
-    requiredTools: ['summarizeVisibleDashboard', 'generateBillingVarianceReport', 'completeTransactionalAdjustment'],
+      'Start in local-browser mode for bounded app tasks. Escalate only when server authority is required. Explain mode transitions, bound handoff context, enforce policy, and record telemetry.',
+    requiredTools: ['summarizeVisibleDashboard', 'generateBillingVarianceReport'],
     defaults: {
       toolChoice: 'required',
       downloadPolicy: 'never',
@@ -67,16 +59,6 @@ export function createWorkerHandoffMissionProfile() {
 
 export function classifyTask(input) {
   const normalizedInput = input.toLowerCase()
-  const isTransactional = TRANSACTIONAL_SIGNALS.some((signal) => normalizedInput.includes(signal))
-  if (isTransactional) {
-    return {
-      route: 'handoff-transactional',
-      reason:
-        'The task requires a local proposal followed by server-side transactional mutation with app-owned Worker policy, audit, and completion.',
-      requiredMode: 'app-owned-worker',
-    }
-  }
-
   const needsServerCapability = SERVER_ONLY_SIGNALS.some((signal) => normalizedInput.includes(signal))
   if (needsServerCapability) {
     return {
@@ -303,48 +285,6 @@ export function createDemoWorkerTools({ telemetry, auditTrail }) {
         return report
       },
     },
-    // Transactional completion tool: completes a mutation after local proposal
-    completeTransactionalAdjustment: {
-      async execute(input, context) {
-        auditTrail.record({
-          action: 'transactional-mutation',
-          sessionId: context.sessionId,
-          runId: context.runId,
-          toolName: 'completeTransactionalAdjustment',
-          input: {
-            workspaceId: input.workspaceId,
-            adjustmentId: input.adjustmentId,
-            amount: input.amount,
-          },
-        })
-
-        const result = {
-          transactionId: 'txn-' + Date.now(),
-          workspaceId: input.workspaceId,
-          adjustmentId: input.adjustmentId,
-          status: 'completed',
-          finalState: 'approved-and-applied',
-          policyOutcome: 'allowed',
-          completedAt: new Date().toISOString(),
-        }
-
-        telemetry.push({
-          type: 'transactional.outcome',
-          mode: 'app-owned-worker',
-          toolName: 'completeTransactionalAdjustment',
-          policyOutcome: 'allowed',
-          transactionId: result.transactionId,
-        })
-        auditTrail.record({
-          action: 'transaction-completed',
-          sessionId: context.sessionId,
-          runId: context.runId,
-          toolName: 'completeTransactionalAdjustment',
-          output: result,
-        })
-        return result
-      },
-    },
   }
 }
 
@@ -416,30 +356,20 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
 
   const policyExecutor = createToolPolicyExecutor({
     defaultPolicy: {
-      allowedTools: ['generateBillingVarianceReport', 'completeTransactionalAdjustment'],
+      allowedTools: ['generateBillingVarianceReport'],
       timeoutMs: 1_000,
       maxInputBytes: 2_000,
       maxOutputBytes: 4_000,
     },
   })
   const workerTools = createDemoWorkerTools({ telemetry, auditTrail })
-  const isTransactional = classification.route === 'handoff-transactional'
-  const toolName = isTransactional ? 'completeTransactionalAdjustment' : 'generateBillingVarianceReport'
-  const toolFn = isTransactional ? workerTools.completeTransactionalAdjustment : workerTools.generateBillingVarianceReport
-  const toolInput = isTransactional
-    ? {
-        workspaceId: envelope.session.state.workspaceId,
-        adjustmentId: 'adj-' + Date.now(),
-        amount: 5000,
-      }
-    : {
-        workspaceId: envelope.session.state.workspaceId,
-        quarter: envelope.session.state.selectedQuarter,
-      }
-  const result = await policyExecutor.execute({
-    toolName,
-    tool: toolFn,
-    input: toolInput,
+  const report = await policyExecutor.execute({
+    toolName: 'generateBillingVarianceReport',
+    tool: workerTools.generateBillingVarianceReport,
+    input: {
+      workspaceId: envelope.session.state.workspaceId,
+      quarter: envelope.session.state.selectedQuarter,
+    },
     context: {
       sessionId: trace.sessionId,
       runId: trace.runId,
@@ -452,28 +382,24 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
     type: 'server_route.completed',
     mode: 'app-owned-worker',
     route: APP_OWNED_WORKER_ROUTE,
-    outcome: isTransactional ? 'transactional-mutation-completed' : 'report-generated',
-    ...(isTransactional
-      ? { transactionId: result.transactionId }
-      : { reportId: result.reportId }),
+    outcome: 'report-generated',
+    reportId: report.reportId,
   })
 
   return {
     mode: 'app-owned-worker',
     userFacingMode:
-      isTransactional
-        ? 'Escalated from Local/browser mode to app-owned Worker mode for transactional mutation completion after local proposal.'
-        : 'Escalated from Local/browser mode to app-owned Worker mode because the request needs server-only finance warehouse access, policy enforcement, telemetry, and audit.',
+      'Escalated from Local/browser mode to app-owned Worker mode because the request needs server-only finance warehouse access, policy enforcement, telemetry, and audit.',
     handoff: {
       route: APP_OWNED_WORKER_ROUTE,
       reason: classification.reason,
       envelope,
     },
     policy: {
-      allowedTools: ['generateBillingVarianceReport', 'completeTransactionalAdjustment'],
-      outcome: result.policyOutcome,
+      allowedTools: ['generateBillingVarianceReport'],
+      outcome: report.policyOutcome,
     },
-    ...(isTransactional ? { transaction: result } : { report: result }),
+    report,
     telemetry,
     auditEntries: auditTrail.entries(),
   }
