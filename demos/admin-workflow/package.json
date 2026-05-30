@@ -1,0 +1,15 @@
+{
+  "name": "edgekit-demo-admin-workflow",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node src/admin-workflow-demo.test.mjs",
+    "demo": "node src/admin-workflow-demo.mjs",
+    "serve": "node src/admin-workflow-demo.mjs --serve"
+  },
+  "dependencies": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-governance": "^0.3.2"
+  }
+}

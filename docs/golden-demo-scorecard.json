@@ -31,17 +31,17 @@
     },
     {
       "id": "admin-workflow",
-      "status": "blocked-by-env",
-      "localBrowserToolUse": "not-verified: QA browser lacked window.ai.languageModel",
-      "cascadeRuntimeOnboarding": "partial: fallback labeled Basic mode but no visible later capability switch",
-      "basicFallbackHonesty": "pass",
-      "realWorkflowCompletion": "fail: approval/change-plan workflow not exercised in live QA",
-      "hostOwnedMutationPath": "not-verified: no approved mutation occurred",
-      "approvalAuditTelemetry": "fail/not-exercised: audit remained empty in Basic mode",
-      "groundingRefusal": "not-tested",
-      "latestEvidence": "qa-artifacts/2026-05-29/report.md",
+      "status": "browser-qa-pass",
+      "localBrowserToolUse": "pass: deterministic local/browser model harness calls searchAccounts, evaluateAdminChange, requestAdminApproval, and executeApprovedAdminChange in real Chrome",
+      "cascadeRuntimeOnboarding": "pass: browser proof shows local/browser account search and policy evaluation before approval-gated mutation",
+      "basicFallbackHonesty": "pass/not-primary: Basic/search-only fallback is explicitly not counted as success",
+      "realWorkflowCompletion": "pass: approved Business to Enterprise plan change completed through the app-owned admin mutation route",
+      "hostOwnedMutationPath": "pass: /api/edgekit/admin-workflow requires x-edgekit-app-authority, local search proof, and approved approval record before mutation",
+      "approvalAuditTelemetry": "pass: browser QA evidence records approval, mutation-started, mutation-completed audit entries plus telemetry",
+      "groundingRefusal": "not-applicable: app-owned account state and policy workflow, no open-domain claims",
+      "latestEvidence": "qa-artifacts/2026-05-30/admin-workflow/report.md; deterministic local/browser model harness exercised RBAC, approval, app-owned mutation, audit, and telemetry in real Chrome; kanban t_3669ce11 remains pending review/merge",
       "linkedIssues": [],
-      "nextGate": "Provide real local-model browser QA or deterministic model-backed demo path that exercises approval-gated admin mutation and audit."
+      "nextGate": "Human/integration review, merge, and retest from a clean integrated branch before any golden-pass promotion."
     },
     {
       "id": "docs-knowledge",
