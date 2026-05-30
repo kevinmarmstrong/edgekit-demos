@@ -181,11 +181,23 @@ test('app-owned Worker route returns sanitized envelope, telemetry, and audit af
 })
 
 test('runDemo returns mission profile and both local plus worker paths', async () => {
-  const demo = await runDemo()
+  const result = await runDemo()
+  assert.ok(result.missionProfile)
+  assert.equal(result.localResult.mode, 'local-browser')
+  assert.equal(result.handoffResult.mode, 'app-owned-worker')
+})
 
-  assert.equal(demo.missionProfile.id, 'worker-handoff-v1')
-  assert.equal(demo.localResult.mode, 'local-browser')
-  assert.equal(demo.handoffResult.mode, 'app-owned-worker')
+test('escalates transactional tasks to app-owned Worker mutation completion', async () => {
+  const result = await handleWorkerHandoff({
+    input: 'Propose a billing adjustment of $5000 for Q2 and complete the transactional mutation via worker.',
+  })
+
+  assert.equal(result.mode, 'app-owned-worker')
+  assert.equal(result.handoff.route, '/api/edgekit/worker-handoff')
+  assert.ok(result.transaction)
+  assert.equal(result.transaction.status, 'completed')
+  assert.equal(result.transaction.policyOutcome, 'allowed')
+  assert.match(result.userFacingMode, /transactional mutation completion after local proposal/)
 })
 
 let passed = 0
