@@ -2,7 +2,7 @@ Audience: demo-team
 
 # Admin workflow browser QA evidence
 
-Generated: 2026-05-30T03:00:09.093Z
+Generated: 2026-05-30T21:24:59.057Z
 
 ## Provider decision
 
@@ -11,7 +11,7 @@ Chosen lane: deterministic model-backed local/browser acceptance harness. Chrome
 - userAgent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36
 - window.ai present: false
 - window.ai language model present: false
-- global LanguageModel present: true
+- global LanguageModel present: false
 
 ## Browser proof
 
@@ -38,4 +38,4 @@ Evidence:
 
 ## Product outcome
 
-`admin-workflow` now has a repeatable local/browser demo lane proving account search, RBAC/policy evaluation, approval-gated risky mutation, host-owned execution, telemetry, and audit in a real browser. It remains browser-qa-pass rather than golden-pass until review/merge and retest from a clean integrated branch.
+`admin-workflow` has a repeatable local/browser demo lane proving account search, RBAC/policy evaluation, approval-gated risky mutation, host-owned execution, telemetry, and audit in a real browser. After PR #12 merged, this clean integrated-main retest passed the same governed local/browser path, so the scorecard can treat admin-workflow as golden-pass.

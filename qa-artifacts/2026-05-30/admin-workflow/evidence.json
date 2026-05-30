@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-05-30T03:00:09.093Z",
+  "generatedAt": "2026-05-30T21:24:59.057Z",
   "chromePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   "chromeFlags": [
     "--headless=new",
@@ -9,14 +9,14 @@
     "--disable-background-networking",
     "--enable-features=PromptAPI,AILanguageModel,AITextSession"
   ],
-  "baseUrl": "http://127.0.0.1:58755",
+  "baseUrl": "http://127.0.0.1:51756",
   "providerDecision": "deterministic-model-backed-acceptance-harness",
   "providerEvidence": {
     "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
     "hasWindowAI": false,
     "aiKeys": [],
     "hasWindowAiLanguageModel": false,
-    "hasGlobalLanguageModel": true,
+    "hasGlobalLanguageModel": false,
     "chromeFlags": [
       "--headless=new",
       "--remote-debugging-port=0",
@@ -313,11 +313,11 @@
       ],
       "auditEntries": [
         {
-          "id": "audit_kjr3ad6b",
+          "id": "audit_7aco26wp",
           "sequence": 1,
-          "timestamp": "2026-05-30T03:00:08.725Z",
+          "timestamp": "2026-05-30T21:24:58.930Z",
           "previousHash": "genesis",
-          "hash": "fnv1a:2a693f40",
+          "hash": "fnv1a:3d5b2989",
           "event": {
             "action": "approval-requested",
             "approvalId": "approval-proposal-acct-northstar-plan_change",
@@ -327,11 +327,11 @@
           }
         },
         {
-          "id": "audit_2tt8y2a1",
+          "id": "audit_q5kdyfxg",
           "sequence": 2,
-          "timestamp": "2026-05-30T03:00:08.736Z",
-          "previousHash": "fnv1a:2a693f40",
-          "hash": "fnv1a:2466c0c7",
+          "timestamp": "2026-05-30T21:24:58.940Z",
+          "previousHash": "fnv1a:3d5b2989",
+          "hash": "fnv1a:ecb7e60c",
           "event": {
             "action": "mutation-started",
             "sessionId": "admin-workflow-demo-session",
@@ -343,11 +343,11 @@
           }
         },
         {
-          "id": "audit_qte6sdn1",
+          "id": "audit_8mar45y0",
           "sequence": 3,
-          "timestamp": "2026-05-30T03:00:08.736Z",
-          "previousHash": "fnv1a:2466c0c7",
-          "hash": "fnv1a:6cd151ae",
+          "timestamp": "2026-05-30T21:24:58.940Z",
+          "previousHash": "fnv1a:ecb7e60c",
+          "hash": "fnv1a:00cd23fc",
           "event": {
             "action": "mutation-completed",
             "sessionId": "admin-workflow-demo-session",
