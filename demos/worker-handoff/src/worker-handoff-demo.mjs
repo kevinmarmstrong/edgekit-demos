@@ -285,6 +285,48 @@ export function createDemoWorkerTools({ telemetry, auditTrail }) {
         return report
       },
     },
+    // Transactional completion tool: completes a mutation after local proposal
+    completeTransactionalAdjustment: {
+      async execute(input, context) {
+        auditTrail.record({
+          action: 'transactional-mutation',
+          sessionId: context.sessionId,
+          runId: context.runId,
+          toolName: 'completeTransactionalAdjustment',
+          input: {
+            workspaceId: input.workspaceId,
+            adjustmentId: input.adjustmentId,
+            amount: input.amount,
+          },
+        })
+
+        const result = {
+          transactionId: 'txn-' + Date.now(),
+          workspaceId: input.workspaceId,
+          adjustmentId: input.adjustmentId,
+          status: 'completed',
+          finalState: 'approved-and-applied',
+          policyOutcome: 'allowed',
+          completedAt: new Date().toISOString(),
+        }
+
+        telemetry.push({
+          type: 'transactional.outcome',
+          mode: 'app-owned-worker',
+          toolName: 'completeTransactionalAdjustment',
+          policyOutcome: 'allowed',
+          transactionId: result.transactionId,
+        })
+        auditTrail.record({
+          action: 'transaction-completed',
+          sessionId: context.sessionId,
+          runId: context.runId,
+          toolName: 'completeTransactionalAdjustment',
+          output: result,
+        })
+        return result
+      },
+    },
   }
 }
 
@@ -356,7 +398,7 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
 
   const policyExecutor = createToolPolicyExecutor({
     defaultPolicy: {
-      allowedTools: ['generateBillingVarianceReport'],
+      allowedTools: ['generateBillingVarianceReport', 'completeTransactionalAdjustment'],
       timeoutMs: 1_000,
       maxInputBytes: 2_000,
       maxOutputBytes: 4_000,
@@ -396,7 +438,7 @@ export async function handleWorkerHandoff({ input, appState = createSampleAppSta
       envelope,
     },
     policy: {
-      allowedTools: ['generateBillingVarianceReport'],
+      allowedTools: ['generateBillingVarianceReport', 'completeTransactionalAdjustment'],
       outcome: report.policyOutcome,
     },
     report,
