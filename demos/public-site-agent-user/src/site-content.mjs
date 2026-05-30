@@ -185,3 +185,24 @@ export const publicSiteKnowledgeSource = {
     }
   },
 }
+
+// Site-specific weak-claim refusal and identity handling for the public-site QA skill.
+// Uses general runtime disclosure + cascade readiness primitives (delegated to createGroundedQaSkill + createCascadeReadinessController).
+// Canary-specific keywords kept here (demo only); core packages remain clean.
+export const WEAK_CLAIM_CANARIES = ['harness', 'ohio', 'kevin', 'rocket', 'gemma']
+
+export function shouldRefuseWeakPublicClaim(query) {
+  const q = String(query || '').toLowerCase()
+  const hasCanary = WEAK_CLAIM_CANARIES.some(k => q.includes(k))
+  if (!hasCanary) return false
+  const results = searchPublicSite(query)
+  return results.length === 0
+}
+
+export function getPublicSiteIdentityDisclosure() {
+  return {
+    ...PUBLIC_SITE_AGENT_IDENTITY,
+    runtimeDisclosure: 'technical',
+    canaryRefusal: 'Harness/Ohio/Kevin/Rocket/Gemma claims refused unless site evidence supports them.',
+  }
+}

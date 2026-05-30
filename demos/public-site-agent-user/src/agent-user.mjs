@@ -8,6 +8,8 @@ import {
   PUBLIC_SITE_AGENT_IDENTITY,
   publicSiteKnowledgeSource,
   searchPublicSite,
+  shouldRefuseWeakPublicClaim,
+  getPublicSiteIdentityDisclosure,
 } from './site-content.mjs'
 
 export const PUBLIC_SITE_NO_EVIDENCE_MESSAGE = 'I do not know from this public site evidence.'
@@ -27,10 +29,10 @@ export function createPublicSiteQaKit() {
       'Answer questions about this public site from host-owned content, configured identity, and strict refusal policy.',
     toolName: 'searchPublicSite',
     source: publicSiteKnowledgeSource,
-    identity: PUBLIC_SITE_AGENT_IDENTITY,
+    identity: getPublicSiteIdentityDisclosure(),
     noEvidenceMessage: PUBLIC_SITE_NO_EVIDENCE_MESSAGE,
     ambiguityPolicy:
-      'If the site evidence does not support a location, biography, hardware, affiliation, or disambiguation claim, refuse it with the no-evidence response.',
+      'If the site evidence does not support a location, biography, hardware, affiliation, or disambiguation claim, refuse it with the no-evidence response. Weak claims (Harness/Ohio/Kevin/Rocket/Gemma etc.) are refused unless supported by site evidence using shouldRefuseWeakPublicClaim.',
     defaultTopK: 3,
     systemPrompt: [
       'You are the configured Edgekit Public Site Guide for this host app.',
@@ -39,6 +41,7 @@ export function createPublicSiteQaKit() {
       'Explain capability mode by distinguishing local cascade, downloadable local setup, and Basic fallback.',
       `If evidence is missing or irrelevant, say exactly: "${PUBLIC_SITE_NO_EVIDENCE_MESSAGE}"`,
       'Do not invent location, biography, hardware, affiliation, or disambiguation details.',
+      'Refuse weak public claims about Harness, Ohio, Kevin, Rocket, Gemma or similar unless site evidence explicitly supports them.',
     ].join(' '),
   })
 }
@@ -110,7 +113,7 @@ export async function handleNoModelPublicSiteAnswer(event) {
 export function acceptanceSnapshot({ query = 'What capability mode is this site using?' } = {}) {
   const matches = searchPublicSite(query, { topK: 3 })
   return {
-    identity: PUBLIC_SITE_AGENT_IDENTITY,
+    identity: getPublicSiteIdentityDisclosure(),
     packageVersions: EDGEKIT_PACKAGE_VERSIONS,
     requiredTool: 'searchPublicSite',
     grounding: 'strict',
