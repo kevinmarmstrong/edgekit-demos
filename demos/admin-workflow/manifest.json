@@ -1,0 +1,23 @@
+{
+  "id": "admin-workflow",
+  "title": "Enterprise admin workflow",
+  "status": "scaffolded",
+  "summary": "Internal enterprise admin console where a governed local/browser agent searches accounts, evaluates RBAC/policy, proposes a risky change, waits for approval, executes through app-owned mutation tools, and records audit plus telemetry.",
+  "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry", "cascade"],
+  "acceptanceEvidence": ["local-browser-search-tool", "rbac-policy-evaluation", "approval-required-before-mutation", "app-owned-approved-mutation-tool", "audit-telemetry-records"],
+  "edgekitLoop": {
+    "team": "demo-team",
+    "actor": "swarm6",
+    "board": "edgekit-demos",
+    "kanbanTask": "t_3669ce11",
+    "source": "kanban",
+    "status": "review-required",
+    "turn": "human",
+    "nextOwner": "human",
+    "trigger": "ignore",
+    "reason": "enterprise-admin-demo-review"
+  },
+  "checks": ["npm --prefix demos/admin-workflow test", "node scripts/check-admin-workflow-demo.mjs", "node scripts/run-admin-workflow-browser-qa.mjs"],
+  "serverRoute": "/api/edgekit/admin-workflow",
+  "classification": "app-specific integration"
+}

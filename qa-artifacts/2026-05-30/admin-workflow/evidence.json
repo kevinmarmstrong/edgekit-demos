@@ -1,0 +1,386 @@
+{
+  "generatedAt": "2026-05-30T03:00:09.093Z",
+  "chromePath": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  "chromeFlags": [
+    "--headless=new",
+    "--remote-debugging-port=0",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--disable-background-networking",
+    "--enable-features=PromptAPI,AILanguageModel,AITextSession"
+  ],
+  "baseUrl": "http://127.0.0.1:58755",
+  "providerDecision": "deterministic-model-backed-acceptance-harness",
+  "providerEvidence": {
+    "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/148.0.0.0 Safari/537.36",
+    "hasWindowAI": false,
+    "aiKeys": [],
+    "hasWindowAiLanguageModel": false,
+    "hasGlobalLanguageModel": true,
+    "chromeFlags": [
+      "--headless=new",
+      "--remote-debugging-port=0",
+      "--no-first-run",
+      "--no-default-browser-check",
+      "--disable-background-networking",
+      "--enable-features=PromptAPI,AILanguageModel,AITextSession"
+    ]
+  },
+  "flowEvidence": {
+    "title": "Enterprise admin workflow golden demo",
+    "localModeCopy": "Provider: deterministic-local-browser-model / capability: tool-calling-local-browser-harness",
+    "serverModeCopy": "The mutation route requires x-edgekit-app-authority, local search proof, and approval.",
+    "searchRun": {
+      "provider": "deterministic-local-browser-model",
+      "capability": "tool-calling-local-browser-harness",
+      "toolCalls": [
+        {
+          "name": "searchAccounts",
+          "args": {
+            "query": "Northstar"
+          }
+        }
+      ],
+      "result": {
+        "mode": "local-browser",
+        "toolName": "searchAccounts",
+        "inputBoundary": "visible account list, role, and policy context only",
+        "userVisibleProof": "The local/browser model searched account records before proposing a risky admin change.",
+        "actingAdmin": {
+          "id": "admin-sam",
+          "name": "Sam Rivera",
+          "role": "security-admin",
+          "permissions": [
+            "accounts:read",
+            "accounts:plan:update",
+            "accounts:suspend",
+            "roles:grant:limited"
+          ]
+        },
+        "results": [
+          {
+            "id": "acct-northstar",
+            "company": "Northstar Labs",
+            "plan": "Business",
+            "status": "active",
+            "seats": 240,
+            "policyTags": [
+              "regulated-data",
+              "sso-required"
+            ],
+            "roles": [
+              "billing-admin"
+            ],
+            "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+          }
+        ]
+      }
+    },
+    "proposalRun": {
+      "provider": "deterministic-local-browser-model",
+      "capability": "tool-calling-local-browser-harness",
+      "toolCalls": [
+        {
+          "name": "evaluateAdminChange",
+          "args": {
+            "accountId": "acct-northstar",
+            "change": {
+              "type": "plan_change",
+              "toPlan": "Enterprise"
+            }
+          }
+        }
+      ],
+      "result": {
+        "id": "proposal-acct-northstar-plan_change",
+        "accountId": "acct-northstar",
+        "change": {
+          "type": "plan_change",
+          "toPlan": "Enterprise"
+        },
+        "rbac": {
+          "actorRole": "security-admin",
+          "hasPermission": true
+        },
+        "risk": "high",
+        "approvalRequired": true,
+        "executable": true,
+        "requiredPermission": "accounts:plan:update"
+      }
+    },
+    "approvalRun": {
+      "provider": "deterministic-local-browser-model",
+      "capability": "tool-calling-local-browser-harness",
+      "toolCalls": [
+        {
+          "name": "requestAdminApproval",
+          "args": {
+            "proposalId": "proposal-acct-northstar-plan_change"
+          }
+        }
+      ],
+      "result": {
+        "id": "approval-proposal-acct-northstar-plan_change",
+        "proposalId": "proposal-acct-northstar-plan_change",
+        "status": "approved",
+        "approver": "vp-security",
+        "reason": "risky-admin-change"
+      }
+    },
+    "mutationRun": {
+      "provider": "deterministic-local-browser-model",
+      "capability": "tool-calling-local-browser-harness",
+      "toolCalls": [
+        {
+          "name": "executeApprovedAdminChange",
+          "args": {
+            "approvalId": "approval-proposal-acct-northstar-plan_change"
+          }
+        }
+      ],
+      "result": {
+        "mutationId": "mutation-approval-proposal-acct-northstar-plan_change",
+        "accountAfter": {
+          "id": "acct-northstar",
+          "company": "Northstar Labs",
+          "plan": "Enterprise",
+          "status": "active",
+          "seats": 240,
+          "policyTags": [
+            "regulated-data",
+            "sso-required"
+          ],
+          "roles": [
+            "billing-admin"
+          ],
+          "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+        },
+        "policyOutcome": "allowed"
+      }
+    },
+    "serverResult": {
+      "route": "/api/edgekit/admin-workflow",
+      "missionProfile": {
+        "id": "enterprise-admin-workflow-v1",
+        "mission": "admin-workflow",
+        "version": "1.0.0",
+        "systemPrompt": "Act as a governed enterprise admin user. Search app-owned account state first, evaluate RBAC and risk, require approval for risky changes, execute only through approved app-owned mutation tools, and record audit plus telemetry.",
+        "requiredTools": [
+          "searchAccounts",
+          "evaluateAdminChange",
+          "requestAdminApproval",
+          "executeApprovedAdminChange"
+        ],
+        "defaults": {
+          "toolChoice": "required",
+          "downloadPolicy": "never"
+        }
+      },
+      "mode": "app-owned-mutation",
+      "userFacingMode": "Local/browser search and RBAC evaluation completed; app-owned mutation executed after approval.",
+      "search": {
+        "mode": "local-browser",
+        "toolName": "searchAccounts",
+        "inputBoundary": "visible account list, role, and policy context only",
+        "userVisibleProof": "The local/browser model searched account records before proposing a risky admin change.",
+        "actingAdmin": {
+          "id": "admin-sam",
+          "name": "Sam Rivera",
+          "role": "security-admin",
+          "permissions": [
+            "accounts:read",
+            "accounts:plan:update",
+            "accounts:suspend",
+            "roles:grant:limited"
+          ]
+        },
+        "results": [
+          {
+            "id": "acct-northstar",
+            "company": "Northstar Labs",
+            "plan": "Business",
+            "status": "active",
+            "seats": 240,
+            "policyTags": [
+              "regulated-data",
+              "sso-required"
+            ],
+            "roles": [
+              "billing-admin"
+            ],
+            "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+          }
+        ]
+      },
+      "proposal": {
+        "id": "proposal-acct-northstar-plan_change",
+        "account": {
+          "id": "acct-northstar",
+          "company": "Northstar Labs",
+          "plan": "Business",
+          "status": "active",
+          "seats": 240,
+          "policyTags": [
+            "regulated-data",
+            "sso-required"
+          ],
+          "roles": [
+            "billing-admin"
+          ],
+          "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+        },
+        "change": {
+          "type": "plan_change",
+          "toPlan": "Enterprise"
+        },
+        "requiredPermission": "accounts:plan:update",
+        "rbac": {
+          "actorRole": "security-admin",
+          "hasPermission": true,
+          "legalHoldBlocked": false
+        },
+        "risk": "high",
+        "approvalRequired": true,
+        "executable": true,
+        "recommendation": "Request approval before plan change for Northstar Labs."
+      },
+      "approval": {
+        "id": "approval-proposal-acct-northstar-plan_change",
+        "proposalId": "proposal-acct-northstar-plan_change",
+        "status": "approved",
+        "approver": "vp-security",
+        "reason": "risky-admin-change"
+      },
+      "mutation": {
+        "mutationId": "mutation-approval-proposal-acct-northstar-plan_change",
+        "accountAfter": {
+          "id": "acct-northstar",
+          "company": "Northstar Labs",
+          "plan": "Enterprise",
+          "status": "active",
+          "seats": 240,
+          "policyTags": [
+            "regulated-data",
+            "sso-required"
+          ],
+          "roles": [
+            "billing-admin"
+          ],
+          "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+        },
+        "policyOutcome": "allowed"
+      },
+      "blockedReason": null,
+      "telemetry": [
+        {
+          "type": "tool.call",
+          "mode": "local-browser",
+          "toolName": "searchAccounts",
+          "query": "Northstar",
+          "resultCount": 1
+        },
+        {
+          "type": "policy.evaluated",
+          "mode": "local-browser",
+          "accountId": "acct-northstar",
+          "changeType": "plan_change",
+          "requiredPermission": "accounts:plan:update",
+          "hasPermission": true,
+          "approvalRequired": true,
+          "executable": true
+        },
+        {
+          "type": "approval.requested",
+          "mode": "local-browser",
+          "approvalId": "approval-proposal-acct-northstar-plan_change",
+          "status": "approved",
+          "proposalId": "proposal-acct-northstar-plan_change"
+        },
+        {
+          "type": "mutation.executed",
+          "mode": "app-owned-mutation",
+          "toolName": "executeApprovedAdminChange",
+          "mutationId": "mutation-approval-proposal-acct-northstar-plan_change",
+          "accountId": "acct-northstar"
+        },
+        {
+          "type": "server_route.completed",
+          "mode": "app-owned-mutation",
+          "route": "/api/edgekit/admin-workflow",
+          "outcome": "mutation-applied",
+          "mutationId": "mutation-approval-proposal-acct-northstar-plan_change"
+        }
+      ],
+      "auditEntries": [
+        {
+          "id": "audit_kjr3ad6b",
+          "sequence": 1,
+          "timestamp": "2026-05-30T03:00:08.725Z",
+          "previousHash": "genesis",
+          "hash": "fnv1a:2a693f40",
+          "event": {
+            "action": "approval-requested",
+            "approvalId": "approval-proposal-acct-northstar-plan_change",
+            "proposalId": "proposal-acct-northstar-plan_change",
+            "status": "approved",
+            "sessionId": "admin-workflow-demo-session"
+          }
+        },
+        {
+          "id": "audit_2tt8y2a1",
+          "sequence": 2,
+          "timestamp": "2026-05-30T03:00:08.736Z",
+          "previousHash": "fnv1a:2a693f40",
+          "hash": "fnv1a:2466c0c7",
+          "event": {
+            "action": "mutation-started",
+            "sessionId": "admin-workflow-demo-session",
+            "runId": "run-admin-workflow-001",
+            "toolName": "executeApprovedAdminChange",
+            "proposalId": "proposal-acct-northstar-plan_change",
+            "approvalId": "approval-proposal-acct-northstar-plan_change",
+            "actor": "admin-sam"
+          }
+        },
+        {
+          "id": "audit_qte6sdn1",
+          "sequence": 3,
+          "timestamp": "2026-05-30T03:00:08.736Z",
+          "previousHash": "fnv1a:2466c0c7",
+          "hash": "fnv1a:6cd151ae",
+          "event": {
+            "action": "mutation-completed",
+            "sessionId": "admin-workflow-demo-session",
+            "runId": "run-admin-workflow-001",
+            "toolName": "executeApprovedAdminChange",
+            "output": {
+              "mutationId": "mutation-approval-proposal-acct-northstar-plan_change",
+              "accountAfter": {
+                "id": "acct-northstar",
+                "company": "Northstar Labs",
+                "plan": "Enterprise",
+                "status": "active",
+                "seats": 240,
+                "policyTags": [
+                  "regulated-data",
+                  "sso-required"
+                ],
+                "roles": [
+                  "billing-admin"
+                ],
+                "visibleRisk": "Invoice failures and unmanaged privileged user detected."
+              },
+              "policyOutcome": "allowed"
+            }
+          }
+        }
+      ]
+    },
+    "secretLeakChecks": {
+      "ownerEmailVisible": false,
+      "secretNoteVisible": false,
+      "serverHasSecretLeak": false
+    }
+  },
+  "screenshotPath": "qa-artifacts/2026-05-30/admin-workflow/admin-workflow-browser-qa.png"
+}

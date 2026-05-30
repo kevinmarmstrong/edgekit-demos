@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enterprise admin workflow golden demo</title>
+  <style>
+    body { font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; margin: 0; background: #0f172a; color: #e2e8f0; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px; }
+    section { border: 1px solid #334155; border-radius: 16px; padding: 18px; margin: 16px 0; background: #111827; }
+    button { background: #38bdf8; color: #082f49; border: 0; border-radius: 10px; padding: 10px 14px; font-weight: 700; margin-right: 8px; cursor: pointer; }
+    pre { white-space: pre-wrap; background: #020617; color: #cbd5e1; padding: 14px; border-radius: 12px; max-height: 360px; overflow: auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #14532d; color: #bbf7d0; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="badge">Local/browser model + app-owned approval/mutation</p>
+    <h1>Enterprise admin workflow golden demo</h1>
+    <p id="product-law">Basic/search-only fallback is not counted as success. This proof starts with browser-local tool calls, gates risky admin mutation through approval, and records host-owned audit/telemetry.</p>
+    <div class="grid">
+      <section data-testid="rbac-panel"><h2>RBAC + policy</h2><pre id="rbac-output">Loading account and policy context…</pre></section>
+      <section data-testid="approval-panel"><h2>Approval gate</h2><pre id="approval-output">No approval requested yet.</pre></section>
+      <section data-testid="telemetry-panel"><h2>Telemetry</h2><pre id="telemetry-output">No events yet.</pre></section>
+      <section data-testid="audit-panel"><h2>Audit</h2><pre id="audit-output">No audit entries yet.</pre></section>
+    </div>
+    <section data-testid="local-browser-agent"><h2>Deterministic local/browser agent harness</h2><p id="local-mode-copy">Provider: deterministic-local-browser-model / capability: tool-calling-local-browser-harness</p><button id="run-search">1. Search accounts</button><button id="run-evaluate">2. Evaluate risky change</button><button id="run-approval">3. Approve</button><button id="run-mutation">4. Execute approved mutation</button><pre id="local-output">Waiting for local/browser tool run.</pre></section>
+    <section data-testid="server-result"><h2>App-owned mutation result</h2><p id="server-mode-copy">The mutation route requires x-edgekit-app-authority, local search proof, and approval.</p><pre id="server-output">No mutation yet.</pre></section>
+  </main>
+  <script src="/browser-app.js"></script>
+</body>
+</html>

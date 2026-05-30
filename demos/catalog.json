@@ -20,18 +20,19 @@
     },
     {
       "id": "admin-workflow",
-      "status": "live",
-      "repo": "kevinmarmstrong/edgekit-demo-admin",
-      "localPath": "../edgekit-demo-admin",
-      "liveUrl": "https://edgekit-demo-admin.pages.dev/",
-      "outcome": "Agent user searches accounts, evaluates role/policy context, proposes risky admin changes, gates them through approval, and records audit/telemetry.",
-      "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry"],
+      "status": "needed",
+      "repo": "kevinmarmstrong/edgekit-demos",
+      "localPath": "demos/admin-workflow",
+      "liveUrl": null,
+      "outcome": "Agent user searches accounts, evaluates role/policy context, proposes risky admin changes, gates them through approval, executes only through app-owned mutation tools, and records audit/telemetry.",
+      "requiredSurfaces": ["identity", "state", "rbac", "read-tools", "mutation-tools", "approval", "audit", "telemetry", "cascade"],
       "acceptance": [
-        "Respects role and permission state.",
+        "Uses browser-local cascade when available.",
+        "Respects role and permission state before proposing risky changes.",
         "Searches account records before recommending changes.",
-        "Requires approval for plan changes and suspensions.",
-        "Records audit-worthy action details.",
-        "Keeps host app as source of truth."
+        "Requires approval for plan changes, suspensions, and role grants.",
+        "Executes approved changes only through host-owned app mutation state.",
+        "Records audit-worthy action details and telemetry."
       ]
     },
     {
