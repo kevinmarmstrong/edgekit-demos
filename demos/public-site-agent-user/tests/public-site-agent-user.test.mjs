@@ -6,7 +6,7 @@ import {
   createPublicSiteCascadeController,
   createPublicSiteQaKit,
 } from '../src/agent-user.mjs'
-import { searchPublicSite, tokenizeQuery } from '../src/site-content.mjs'
+import { searchPublicSite, tokenizeQuery, shouldRefuseWeakPublicClaim, getPublicSiteIdentityDisclosure } from '../src/site-content.mjs'
 
 const kit = createPublicSiteQaKit()
 
@@ -79,5 +79,12 @@ assert.equal(evidence.grounding, 'strict')
 assert.equal(evidence.fallbackLabel, 'Fallback response (no model available)')
 assert.ok(evidence.matchCount > 0)
 assert.ok(evidence.citations.some(citation => citation.uri === '/#grounding-policy'))
+
+// Test site-specific weak-claim refusal and identity disclosure
+assert.equal(shouldRefuseWeakPublicClaim('Are you from Ohio and building rockets with robots?'), true)
+assert.equal(shouldRefuseWeakPublicClaim('What is the site purpose?'), false)
+assert.equal(shouldRefuseWeakPublicClaim('Who is Kevin?'), true)
+assert.ok(getPublicSiteIdentityDisclosure().runtimeDisclosure === 'technical')
+assert.ok(getPublicSiteIdentityDisclosure().canaryRefusal.includes('Harness/Ohio/Kevin/Rocket/Gemma'))
 
 console.log('public-site-agent-user runtime checks passed')
