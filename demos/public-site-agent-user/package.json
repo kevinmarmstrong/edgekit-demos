@@ -1,0 +1,22 @@
+{
+  "name": "edgekit-demo-public-site-agent-user",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Golden demo scaffold for a governed Edgekit public-site agent user.",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node tests/public-site-agent-user.test.mjs"
+  },
+  "dependencies": {
+    "@kevinmarmstrong/edgekit": "^0.3.2",
+    "@kevinmarmstrong/edgekit-knowledge": "^0.3.2",
+    "@kevinmarmstrong/edgekit-skills": "^0.3.2",
+    "@kevinmarmstrong/edgekit-ui": "^0.3.2"
+  },
+  "devDependencies": {
+    "vite": "^7.2.0"
+  }
+}

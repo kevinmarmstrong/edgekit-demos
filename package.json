@@ -4,10 +4,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-admin-workflow-demo.mjs && node scripts/check-golden-scorecard.mjs",
+    "test": "node scripts/check-catalog.mjs && node scripts/check-worker-handoff-demo.mjs && node scripts/check-admin-workflow-demo.mjs && node scripts/check-golden-scorecard.mjs && node scripts/check-public-site-agent-user.mjs",
     "smoke:live": "node scripts/check-live-demos.mjs",
     "demo:worker-handoff": "npm --prefix demos/worker-handoff test",
     "demo:admin-workflow": "npm --prefix demos/admin-workflow test",
+    "demo:public-site-agent-user": "npm --prefix demos/public-site-agent-user test",
     "qa:local-browser-model": "node scripts/run-local-browser-model-qa.mjs",
     "qa:admin-workflow": "node scripts/run-admin-workflow-browser-qa.mjs",
     "lab:tool-surface-retrofit": "npm --prefix labs/tool-surface-retrofit-lab run check"

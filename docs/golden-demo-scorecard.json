@@ -59,17 +59,17 @@
     },
     {
       "id": "public-site-agent-user",
-      "status": "scaffolded",
-      "localBrowserToolUse": "claimed by scaffold tests; needs full browser QA against clean integrated branch",
-      "cascadeRuntimeOnboarding": "claimed: capability mode and cascade wizard visible",
-      "basicFallbackHonesty": "claimed: no-model fallback labeled fallback",
-      "realWorkflowCompletion": "partial: grounded public-site Q&A only; no mutation workflow expected",
+      "status": "blocked-by-env",
+      "localBrowserToolUse": "not-verified in clean browser QA: window.ai.languageModel unavailable and Chrome AI/WebLLM providers reported unavailable; runtime tests cover local-ready controller behavior",
+      "cascadeRuntimeOnboarding": "pass/partial: capability mode card and cascade wizard visible; QA browser settled at fallback-ready because local-model capability was missing",
+      "basicFallbackHonesty": "pass: Basic mode and no-model fallback are labeled as degraded fallback, not the product path",
+      "realWorkflowCompletion": "partial: grounded public-site Q&A and unsupported-claim refusal passed in browser fallback; no mutation workflow expected",
       "hostOwnedMutationPath": "not-applicable/read-only",
-      "approvalAuditTelemetry": "telemetry claimed; needs browser evidence artifact",
-      "groundingRefusal": "claimed: unsupported Ohio/robots/rockets refused locally",
-      "latestEvidence": "kanban t_eb31c870 handoff; needs integration-steward verification",
+      "approvalAuditTelemetry": "partial: UI telemetry hook is wired; browser QA verified no JS errors but did not exercise a real local-model tool-call telemetry path",
+      "groundingRefusal": "pass in browser fallback: Ohio/robots/rockets prompt returned no-evidence refusal",
+      "latestEvidence": "demos/public-site-agent-user/README.md#browser-qa-evidence; clean worktree feat/public-site-agent-user browser QA on http://127.0.0.1:5173/",
       "linkedIssues": ["kevinmarmstrong/edgekit-demos#1"],
-      "nextGate": "Integration steward isolates branch, verifies no demo-specific logic leaked to core, then browser QA updates status."
+      "nextGate": "Retest in a known local-model browser or add an accepted deterministic local-browser model QA lane before promotion beyond blocked-by-env."
     },
     {
       "id": "worker-handoff",
