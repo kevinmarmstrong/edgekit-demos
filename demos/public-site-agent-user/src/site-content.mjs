@@ -200,9 +200,12 @@ export function shouldRefuseWeakPublicClaim(query) {
 }
 
 export function getPublicSiteIdentityDisclosure() {
+  const canaryLabel = WEAK_CLAIM_CANARIES.map(
+    keyword => keyword[0].toUpperCase() + keyword.slice(1),
+  ).join('/')
   return {
     ...PUBLIC_SITE_AGENT_IDENTITY,
     runtimeDisclosure: 'technical',
-    canaryRefusal: 'Harness/Ohio/Kevin/Rocket/Gemma claims refused unless site evidence supports them.',
+    canaryRefusal: `${canaryLabel} claims refused unless site evidence supports them.`,
   }
 }

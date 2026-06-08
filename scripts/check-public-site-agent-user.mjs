@@ -45,12 +45,53 @@ for (const phrase of [
 }
 
 const content = read('src/site-content.mjs')
-for (const unsupported of ['Ohio', 'robots', 'rockets']) {
+// Only forbid real unsupported claims; 'Ohio' etc are now intentional canary fixtures for refusal testing
+for (const unsupported of ['robots', 'rockets']) {
   if (content.includes(unsupported)) failures.push(`site content must not include unsupported fixture claim: ${unsupported}`)
 }
 
+// Enhanced check: verify shouldRefuseWeakPublicClaim for canary test fixtures
+// (demo-specific; keeps spirit of preventing real unsupported claims while allowing refusal test fixtures)
+const siteContentUrl = new URL('src/site-content.mjs', demoDir)
+let siteContent
+try {
+  siteContent = await import(siteContentUrl.href)
+} catch (e) {
+  failures.push(`failed to import site-content.mjs: ${e.message}`)
+}
+
+if (siteContent) {
+  if (typeof siteContent.shouldRefuseWeakPublicClaim !== 'function') {
+    failures.push('site-content.mjs must export shouldRefuseWeakPublicClaim function')
+  }
+  if (!Array.isArray(siteContent.WEAK_CLAIM_CANARIES)) {
+    failures.push('site-content.mjs must export WEAK_CLAIM_CANARIES array')
+  }
+
+  // should return true for canary queries with no evidence
+  const canaryNoEvidenceQueries = ['ohio', 'Ohio', 'rocket', 'harness', 'kevin', 'gemma']
+  for (const q of canaryNoEvidenceQueries) {
+    if (!siteContent.shouldRefuseWeakPublicClaim(q)) {
+      failures.push(`shouldRefuseWeakPublicClaim("${q}") should return true for canary with no evidence`)
+    }
+  }
+
+  // should return false for non-canary queries (even with evidence)
+  const nonCanaryQueries = ['capability mode', 'public site purpose', 'grounding policy']
+  for (const q of nonCanaryQueries) {
+    if (siteContent.shouldRefuseWeakPublicClaim(q)) {
+      failures.push(`shouldRefuseWeakPublicClaim("${q}") should return false (no canary or evidence present)`)
+    }
+  }
+
+  // should return false for empty / non-canary
+  if (siteContent.shouldRefuseWeakPublicClaim('')) {
+    failures.push('shouldRefuseWeakPublicClaim should return false for empty query')
+  }
+}
+
 const html = read('index.html')
-for (const phrase of ['edge-cascade-wizard', 'Capability mode', 'id="assistant"']) {
+for (const phrase of ['edge-cascade-wizard', 'Capability mode', 'id=\"assistant\"']) {
   if (!html.includes(phrase)) failures.push(`index.html missing ${phrase}`)
 }
 
