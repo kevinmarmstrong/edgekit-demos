@@ -9,6 +9,7 @@
     "demo:worker-handoff": "npm --prefix demos/worker-handoff test",
     "demo:admin-workflow": "npm --prefix demos/admin-workflow test",
     "demo:public-site-agent-user": "npm --prefix demos/public-site-agent-user test",
+    "lab:cascade-onboarding": "node labs/cascade-runtime-onboarding-lab/check.mjs",
     "qa:local-browser-model": "node scripts/run-local-browser-model-qa.mjs",
     "qa:admin-workflow": "node scripts/run-admin-workflow-browser-qa.mjs",
     "lab:tool-surface-retrofit": "npm --prefix labs/tool-surface-retrofit-lab run check"
