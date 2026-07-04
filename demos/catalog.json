@@ -87,8 +87,17 @@
   "labs": [
     {
       "id": "cascade-runtime-onboarding-lab",
-      "status": "needed",
-      "purpose": "Prototype first-visit and runtime mode-change UX for local model, WebLLM download, cloud fallback, and Basic fallback."
+      "status": "scaffolded",
+      "localPath": "labs/cascade-runtime-onboarding-lab",
+      "purpose": "Prototype first-visit and runtime mode-change UX for local model, WebLLM download, cloud fallback, and Basic fallback.",
+      "checks": ["npm run lab:cascade-onboarding"],
+      "acceptance": [
+        "Detects browser/local model availability before exposing agent-operable features.",
+        "Prompts for an explicit WebLLM download and records download/provider status.",
+        "Offers an app-owned cloud/server route when configured.",
+        "Labels Basic fallback as setup guidance only, not the product experience.",
+        "Records telemetry and audit evidence for first-visit, retry, and mode-change transitions."
+      ]
     },
     {
       "id": "tool-surface-retrofit-lab",

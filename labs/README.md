@@ -18,7 +18,10 @@ when it proves a reusable app-operability outcome with published packages.
 
 ## Current Lab Backlog
 
-- Cascade runtime onboarding and user-triggered mode changes.
+- Cascade runtime onboarding and user-triggered mode changes: scaffolded in
+  `labs/cascade-runtime-onboarding-lab` with browser-local detection, WebLLM
+  download consent, app-owned cloud/server fallback, Basic fallback labeling,
+  retry/change controls, telemetry, audit, and classified friction.
 - Worker/server handoff from browser-local mode.
 - Evidence relevance and claim-support gating for public Q&A.
 - Approval UX for multi-step workflows.
